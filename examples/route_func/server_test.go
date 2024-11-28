@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/goutil"
 )
 
 //go:generate go test -v -c -o "${GOPACKAGE}_server" $GOFILE
@@ -16,8 +16,8 @@ func TestServer(t *testing.T) {
 		t.Log("skip test in go test")
 		return
 	}
-	defer erpc.FlushLogger()
-	srv := erpc.NewPeer(erpc.PeerConfig{
+	defer yrpc.FlushLogger()
+	srv := yrpc.NewPeer(yrpc.PeerConfig{
 		CountTime:  true,
 		ListenPort: 9090,
 	})
@@ -27,14 +27,14 @@ func TestServer(t *testing.T) {
 }
 
 type callCtrl struct {
-	erpc.CallCtx
+	yrpc.CallCtx
 }
 
-func (c *callCtrl) math_add1(arg *[]int) (int, *erpc.Status) {
+func (c *callCtrl) math_add1(arg *[]int) (int, *yrpc.Status) {
 	return math_add2(c, arg)
 }
 
-func math_add2(ctx erpc.CallCtx, arg *[]int) (int, *erpc.Status) {
+func math_add2(ctx yrpc.CallCtx, arg *[]int) (int, *yrpc.Status) {
 	if string(ctx.PeekMeta("push_status")) == "yes" {
 		ctx.Session().Push(
 			"/server/status1",

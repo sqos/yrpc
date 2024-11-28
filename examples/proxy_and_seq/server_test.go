@@ -3,8 +3,8 @@ package proxy_and_seq
 import (
 	"testing"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/goutil"
 )
 
 //go:generate go test -v -c -o "${GOPACKAGE}_server" $GOFILE
@@ -14,8 +14,8 @@ func TestServer(t *testing.T) {
 		t.Log("skip test in go test")
 		return
 	}
-	defer erpc.FlushLogger()
-	srv := erpc.NewPeer(erpc.PeerConfig{
+	defer yrpc.FlushLogger()
+	srv := yrpc.NewPeer(yrpc.PeerConfig{
 		CountTime:  true,
 		ListenPort: 9090,
 	})
@@ -25,10 +25,10 @@ func TestServer(t *testing.T) {
 }
 
 type math struct {
-	erpc.CallCtx
+	yrpc.CallCtx
 }
 
-func (m *math) Add(arg *[]int) (int, *erpc.Status) {
+func (m *math) Add(arg *[]int) (int, *yrpc.Status) {
 	var r int
 	for _, a := range *arg {
 		r += a
@@ -37,10 +37,10 @@ func (m *math) Add(arg *[]int) (int, *erpc.Status) {
 }
 
 type chat struct {
-	erpc.PushCtx
+	yrpc.PushCtx
 }
 
-func (c *chat) Say(arg *string) *erpc.Status {
-	erpc.Printf("%s say: %q", c.PeekMeta("X-ID"), *arg)
+func (c *chat) Say(arg *string) *yrpc.Status {
+	yrpc.Printf("%s say: %q", c.PeekMeta("X-ID"), *arg)
 	return nil
 }

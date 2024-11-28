@@ -1,4 +1,5 @@
-// Copyright 2017 HenryLee. All Rights Reserved.
+// Copyright 2017-2023 HenryLee. All Rights Reserved.
+// Copyright 2024 sqos. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +16,7 @@
 package socket
 
 import (
-	"github.com/andeya/goutil"
+	"github.com/sqos/goutil"
 )
 
 // SocketHub sockets hub

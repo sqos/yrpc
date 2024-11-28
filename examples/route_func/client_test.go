@@ -3,8 +3,8 @@ package route_func
 import (
 	"testing"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/goutil"
 )
 
 //go:generate go test -v -c -o "${GOPACKAGE}_client" $GOFILE
@@ -14,9 +14,9 @@ func TestClient(t *testing.T) {
 		t.Log("skip test in go test")
 		return
 	}
-	defer erpc.SetLoggerLevel("ERROR")()
+	defer yrpc.SetLoggerLevel("ERROR")()
 
-	cli := erpc.NewPeer(erpc.PeerConfig{})
+	cli := yrpc.NewPeer(yrpc.PeerConfig{})
 	defer cli.Close()
 
 	cli.RoutePushFunc((*pushCtrl).ServerStatus1)
@@ -24,7 +24,7 @@ func TestClient(t *testing.T) {
 
 	sess, stat := cli.Dial(":9090")
 	if !stat.OK() {
-		erpc.Fatalf("%v", stat)
+		yrpc.Fatalf("%v", stat)
 	}
 
 	var result int
@@ -34,31 +34,31 @@ func TestClient(t *testing.T) {
 	).Status()
 
 	if !stat.OK() {
-		erpc.Fatalf("%v", stat)
+		yrpc.Fatalf("%v", stat)
 	}
-	erpc.Printf("result1: %d", result)
+	yrpc.Printf("result1: %d", result)
 
 	stat = sess.Call("/math/add2",
 		[]int{1, 2, 3, 4, 5},
 		&result,
-		erpc.WithAddMeta("push_status", "yes"),
+		yrpc.WithAddMeta("push_status", "yes"),
 	).Status()
 
 	if !stat.OK() {
-		erpc.Fatalf("%v", stat)
+		yrpc.Fatalf("%v", stat)
 	}
-	erpc.Printf("result2: %d", result)
+	yrpc.Printf("result2: %d", result)
 }
 
 type pushCtrl struct {
-	erpc.PushCtx
+	yrpc.PushCtx
 }
 
-func (c *pushCtrl) ServerStatus1(arg *string) *erpc.Status {
+func (c *pushCtrl) ServerStatus1(arg *string) *yrpc.Status {
 	return ServerStatus2(c, arg)
 }
 
-func ServerStatus2(ctx erpc.PushCtx, arg *string) *erpc.Status {
-	erpc.Printf("server status(%s): %s", ctx.ServiceMethod(), *arg)
+func ServerStatus2(ctx yrpc.PushCtx, arg *string) *yrpc.Status {
+	yrpc.Printf("server status(%s): %s", ctx.ServiceMethod(), *arg)
 	return nil
 }

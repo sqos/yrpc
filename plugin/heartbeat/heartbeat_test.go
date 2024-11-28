@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/erpc/v7/plugin/heartbeat"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/yrpc/plugin/heartbeat"
+	"github.com/sqos/goutil"
 )
 
 //go:generate go test -v -c -o "${GOPACKAGE}" $GOFILE
@@ -16,15 +16,15 @@ func TestHeartbeatCall1(t *testing.T) {
 		t.Log("skip test in go test")
 		return
 	}
-	srv := erpc.NewPeer(
-		erpc.PeerConfig{ListenPort: 9090, PrintDetail: true},
+	srv := yrpc.NewPeer(
+		yrpc.PeerConfig{ListenPort: 9090, PrintDetail: true},
 		heartbeat.NewPong(),
 	)
 	go srv.ListenAndServe()
 	time.Sleep(time.Second)
 
-	cli := erpc.NewPeer(
-		erpc.PeerConfig{PrintDetail: true},
+	cli := yrpc.NewPeer(
+		yrpc.PeerConfig{PrintDetail: true},
 		heartbeat.NewPing(3, true),
 	)
 	cli.Dial(":9090")
@@ -36,15 +36,15 @@ func TestHeartbeatCall2(t *testing.T) {
 		t.Log("skip test in go test")
 		return
 	}
-	srv := erpc.NewPeer(
-		erpc.PeerConfig{ListenPort: 9091, PrintDetail: true},
+	srv := yrpc.NewPeer(
+		yrpc.PeerConfig{ListenPort: 9091, PrintDetail: true},
 		heartbeat.NewPong(),
 	)
 	go srv.ListenAndServe()
 	time.Sleep(time.Second)
 
-	cli := erpc.NewPeer(
-		erpc.PeerConfig{PrintDetail: true},
+	cli := yrpc.NewPeer(
+		yrpc.PeerConfig{PrintDetail: true},
 		heartbeat.NewPing(3, true),
 	)
 	sess, _ := cli.Dial(":9091")
@@ -60,15 +60,15 @@ func TestHeartbeatPush1(t *testing.T) {
 		t.Log("skip test in go test")
 		return
 	}
-	srv := erpc.NewPeer(
-		erpc.PeerConfig{ListenPort: 9092, PrintDetail: true},
+	srv := yrpc.NewPeer(
+		yrpc.PeerConfig{ListenPort: 9092, PrintDetail: true},
 		heartbeat.NewPing(3, false),
 	)
 	go srv.ListenAndServe()
 	time.Sleep(time.Second)
 
-	cli := erpc.NewPeer(
-		erpc.PeerConfig{PrintDetail: true},
+	cli := yrpc.NewPeer(
+		yrpc.PeerConfig{PrintDetail: true},
 		heartbeat.NewPong(),
 	)
 	cli.Dial(":9092")
@@ -80,15 +80,15 @@ func TestHeartbeatPush2(t *testing.T) {
 		t.Log("skip test in go test")
 		return
 	}
-	srv := erpc.NewPeer(
-		erpc.PeerConfig{ListenPort: 9093, PrintDetail: true},
+	srv := yrpc.NewPeer(
+		yrpc.PeerConfig{ListenPort: 9093, PrintDetail: true},
 		heartbeat.NewPing(3, false),
 	)
 	go srv.ListenAndServe()
 	time.Sleep(time.Second)
 
-	cli := erpc.NewPeer(
-		erpc.PeerConfig{PrintDetail: true},
+	cli := yrpc.NewPeer(
+		yrpc.PeerConfig{PrintDetail: true},
 		heartbeat.NewPong(),
 	)
 	sess, _ := cli.Dial(":9093")

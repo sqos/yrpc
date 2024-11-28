@@ -1,8 +1,8 @@
 package rawproto
 
 import (
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/erpc/v7/socket"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/yrpc/socket"
 )
 
 /*
@@ -31,6 +31,6 @@ import (
 //
 //	it is the default protocol.
 //	id:6, name:"raw"
-func NewRawProtoFunc() erpc.ProtoFunc {
+func NewRawProtoFunc() yrpc.ProtoFunc {
 	return socket.RawProtoFunc
 }

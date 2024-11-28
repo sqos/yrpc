@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"github.com/andeya/goutil"
+	"github.com/sqos/goutil"
 )
 
 var countStringSet = []byte("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")

@@ -13,7 +13,7 @@ Higher throughput client connection pool when transferring large messages (such 
 
 ### Usage
 
-`import "github.com/andeya/erpc/v7/mixer/multiclient"`
+`import "github.com/sqos/yrpc/mixer/multiclient"`
 
 #### Test
 
@@ -24,8 +24,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/erpc/v7/mixer/multiclient"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/yrpc/mixer/multiclient"
 )
 
 type Arg struct {
@@ -33,14 +33,14 @@ type Arg struct {
 	B int `param:"<range:1:>"`
 }
 
-type P struct{ erpc.CallCtx }
+type P struct{ yrpc.CallCtx }
 
-func (p *P) Divide(arg *Arg) (int, *erpc.Status) {
+func (p *P) Divide(arg *Arg) (int, *yrpc.Status) {
 	return arg.A / arg.B, nil
 }
 
 func TestMultiClient(t *testing.T) {
-	srv := erpc.NewPeer(erpc.PeerConfig{
+	srv := yrpc.NewPeer(yrpc.PeerConfig{
 		ListenPort: 9090,
 	})
 	srv.RouteCall(new(P))
@@ -48,7 +48,7 @@ func TestMultiClient(t *testing.T) {
 	time.Sleep(time.Second)
 
 	cli := multiclient.New(
-		erpc.NewPeer(erpc.PeerConfig{}),
+		yrpc.NewPeer(yrpc.PeerConfig{}),
 		":9090",
 		100,
 		time.Second*5,

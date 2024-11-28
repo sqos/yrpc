@@ -1,4 +1,5 @@
-// Copyright 2015-2019 HenryLee. All Rights Reserved.
+// Copyright 2015-2023 HenryLee. All Rights Reserved.
+// Copyright 2024 sqos. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package erpc
+package yrpc
 
 import (
 	"encoding/json"
@@ -20,11 +21,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/andeya/erpc/v7/quic"
-	"github.com/andeya/goutil"
-	"github.com/andeya/goutil/errors"
-	"github.com/andeya/goutil/graceful"
-	"github.com/andeya/goutil/graceful/inherit_net"
+	"github.com/sqos/yrpc/quic"
+	"github.com/sqos/goutil"
+	"github.com/sqos/goutil/errors"
+	"github.com/sqos/goutil/graceful"
+	"github.com/sqos/goutil/graceful/inherit_net"
 )
 
 var peers = struct {
@@ -84,10 +85,10 @@ func GraceSignal() {
 
 var (
 	// FirstSweep is first executed.
-	// Usage: share github.com/andeya/goutil/graceful with other project.
+	// Usage: share github.com/sqos/goutil/graceful with other project.
 	FirstSweep func() error
 	// BeforeExiting is executed before process exiting.
-	// Usage: share github.com/andeya/goutil/graceful with other project.
+	// Usage: share github.com/sqos/goutil/graceful with other project.
 	BeforeExiting func() error
 )
 

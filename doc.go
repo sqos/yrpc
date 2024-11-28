@@ -1,6 +1,7 @@
-// Package erpc is an efficient, extensible and easy-to-use RPC framework.
+// Package yrpc is an efficient, extensible and easy-to-use RPC framework.
 //
-// Copyright 2015-2019 HenryLee. All Rights Reserved.
+// Copyright 2015-2023 HenryLee. All Rights Reserved.
+// Copyright 2024 sqos. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

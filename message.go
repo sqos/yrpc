@@ -1,12 +1,12 @@
-package erpc
+package yrpc
 
 import (
 	"strconv"
 
-	"github.com/andeya/erpc/v7/codec"
-	"github.com/andeya/erpc/v7/socket"
-	"github.com/andeya/erpc/v7/utils"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc/codec"
+	"github.com/sqos/yrpc/socket"
+	"github.com/sqos/yrpc/utils"
+	"github.com/sqos/goutil"
 )
 
 // Message types

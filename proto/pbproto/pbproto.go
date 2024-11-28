@@ -2,7 +2,8 @@
 //
 //	Message data format: {length bytes}{xfer_pipe length byte}{xfer_pipe bytes}{JSON bytes}
 //
-// Copyright 2018 HenryLee. All Rights Reserved.
+// Copyright 2018-2023 HenryLee. All Rights Reserved.
+// Copyright 2024 sqos. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,15 +23,15 @@ import (
 	"io"
 	"sync"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/erpc/v7/codec"
-	"github.com/andeya/erpc/v7/proto/pbproto/pb"
-	"github.com/andeya/erpc/v7/utils"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/yrpc/codec"
+	"github.com/sqos/yrpc/proto/pbproto/pb"
+	"github.com/sqos/yrpc/utils"
 )
 
 // NewPbProtoFunc is creation function of PROTOBUF socket protocol.
-func NewPbProtoFunc() erpc.ProtoFunc {
-	return func(rw erpc.IOWithReadBuffer) erpc.Proto {
+func NewPbProtoFunc() yrpc.ProtoFunc {
+	return func(rw yrpc.IOWithReadBuffer) yrpc.Proto {
 		return &pbproto{
 			id:   'p',
 			name: "protobuf",
@@ -40,7 +41,7 @@ func NewPbProtoFunc() erpc.ProtoFunc {
 }
 
 type pbproto struct {
-	rw   erpc.IOWithReadBuffer
+	rw   yrpc.IOWithReadBuffer
 	rMu  sync.Mutex
 	name string
 	id   byte
@@ -53,7 +54,7 @@ func (pp *pbproto) Version() (byte, string) {
 
 // Pack writes the Message into the connection.
 // NOTE: Make sure to write only once or there will be package contamination!
-func (pp *pbproto) Pack(m erpc.Message) error {
+func (pp *pbproto) Pack(m yrpc.Message) error {
 	// marshal body
 	bodyBytes, err := m.MarshalBody()
 	if err != nil {
@@ -94,7 +95,7 @@ func (pp *pbproto) Pack(m erpc.Message) error {
 }
 
 // Unpack reads bytes from the connection to the Message.
-func (pp *pbproto) Unpack(m erpc.Message) error {
+func (pp *pbproto) Unpack(m yrpc.Message) error {
 	pp.rMu.Lock()
 	defer pp.rMu.Unlock()
 	var size uint32

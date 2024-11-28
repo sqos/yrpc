@@ -3,8 +3,8 @@ package echo
 import (
 	"testing"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/goutil"
 )
 
 //go:generate go test -v -c -o "${GOPACKAGE}_client" $GOFILE
@@ -14,16 +14,16 @@ func TestClient(t *testing.T) {
 		t.Log("skip test in go test")
 		return
 	}
-	defer erpc.SetLoggerLevel("ERROR")()
+	defer yrpc.SetLoggerLevel("ERROR")()
 
-	cli := erpc.NewPeer(
-		erpc.PeerConfig{},
+	cli := yrpc.NewPeer(
+		yrpc.PeerConfig{},
 	)
 	defer cli.Close()
 
 	sess, stat := cli.Dial(":9090")
 	if !stat.OK() {
-		erpc.Fatalf("%v", stat)
+		yrpc.Fatalf("%v", stat)
 	}
 
 	var result string
@@ -34,7 +34,7 @@ func TestClient(t *testing.T) {
 	).Status()
 
 	if !stat.OK() {
-		erpc.Fatalf("%v", stat)
+		yrpc.Fatalf("%v", stat)
 	}
-	erpc.Printf("result: %s", result)
+	yrpc.Printf("result: %s", result)
 }

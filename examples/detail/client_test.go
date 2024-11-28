@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/erpc/v7/xfer/gzip"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/yrpc/xfer/gzip"
+	"github.com/sqos/goutil"
 )
 
 //go:generate go test -v -c -o "${GOPACKAGE}_client" $GOFILE
@@ -17,12 +17,12 @@ func TestClient(t *testing.T) {
 		t.Log("skip test in go test")
 		return
 	}
-	defer erpc.FlushLogger()
+	defer yrpc.FlushLogger()
 	gzip.Reg('g', "gizp", 5)
 
-	go erpc.GraceSignal()
-	erpc.SetShutdown(time.Second*20, nil, nil)
-	var peer = erpc.NewPeer(erpc.PeerConfig{
+	go yrpc.GraceSignal()
+	yrpc.SetShutdown(time.Second*20, nil, nil)
+	var peer = yrpc.NewPeer(yrpc.PeerConfig{
 		SlowCometDuration: time.Millisecond * 500,
 		// DefaultBodyCodec:    "json",
 		// DefaultContextAge: time.Second * 5,
@@ -36,7 +36,7 @@ func TestClient(t *testing.T) {
 
 	var sess, stat = peer.Dial("127.0.0.1:9090")
 	if !stat.OK() {
-		erpc.Fatalf("%v", stat)
+		yrpc.Fatalf("%v", stat)
 	}
 	sess.SetID("testId")
 
@@ -48,20 +48,20 @@ func TestClient(t *testing.T) {
 				"bytes": []byte("test bytes"),
 			},
 			&result,
-			erpc.WithBodyCodec('j'),
-			erpc.WithAcceptBodyCodec('j'),
-			erpc.WithXferPipe('g'),
-			erpc.WithSetMeta("peer_id", "call-1"),
-			erpc.WithAddMeta("add", "1"),
-			erpc.WithAddMeta("add", "2"),
+			yrpc.WithBodyCodec('j'),
+			yrpc.WithAcceptBodyCodec('j'),
+			yrpc.WithXferPipe('g'),
+			yrpc.WithSetMeta("peer_id", "call-1"),
+			yrpc.WithAddMeta("add", "1"),
+			yrpc.WithAddMeta("add", "2"),
 		).Status(); !stat.OK() {
-			erpc.Errorf("call error: %v", stat)
+			yrpc.Errorf("call error: %v", stat)
 			time.Sleep(time.Second * 2)
 		} else {
 			break
 		}
 	}
-	erpc.Infof("test: %#v", result)
+	yrpc.Infof("test: %#v", result)
 
 	// sess.Close()
 
@@ -75,24 +75,24 @@ func TestClient(t *testing.T) {
 			[]byte("test bytes"),
 		},
 		&result,
-		erpc.WithXferPipe('g'),
+		yrpc.WithXferPipe('g'),
 	).Status()
-	if erpc.IsConnError(stat) {
-		erpc.Fatalf("has conn error: %v", stat)
+	if yrpc.IsConnError(stat) {
+		yrpc.Fatalf("has conn error: %v", stat)
 	}
 	if !stat.OK() {
-		erpc.Fatalf("call error: %v", stat)
+		yrpc.Fatalf("call error: %v", stat)
 	}
-	erpc.Infof("test_unknown: %#v", result)
+	yrpc.Infof("test_unknown: %#v", result)
 }
 
 // Push controller
 type Push struct {
-	erpc.PushCtx
+	yrpc.PushCtx
 }
 
 // Test handler
-func (p *Push) Test(arg *map[string]interface{}) *erpc.Status {
-	erpc.Infof("receive push(%s):\narg: %#v\n", p.IP(), arg)
+func (p *Push) Test(arg *map[string]interface{}) *yrpc.Status {
+	yrpc.Infof("receive push(%s):\narg: %#v\n", p.IP(), arg)
 	return nil
 }

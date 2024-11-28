@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/goutil"
 )
 
 //go:generate go test -v -c -o "${GOPACKAGE}_server" $GOFILE
@@ -16,10 +16,10 @@ func TestServer(t *testing.T) {
 		return
 	}
 
-	defer erpc.FlushLogger()
-	go erpc.GraceSignal()
-	erpc.SetShutdown(time.Second*20, nil, nil)
-	var peer = erpc.NewPeer(erpc.PeerConfig{
+	defer yrpc.FlushLogger()
+	go yrpc.GraceSignal()
+	yrpc.SetShutdown(time.Second*20, nil, nil)
+	var peer = yrpc.NewPeer(yrpc.PeerConfig{
 		SlowCometDuration: time.Millisecond * 500,
 		PrintDetail:       true,
 		ListenPort:        9090,
@@ -32,24 +32,24 @@ func TestServer(t *testing.T) {
 
 // Home controller
 type Home struct {
-	erpc.CallCtx
+	yrpc.CallCtx
 }
 
 // Test handler
-func (h *Home) Test(arg *[]byte) ([]byte, *erpc.Status) {
+func (h *Home) Test(arg *[]byte) ([]byte, *yrpc.Status) {
 	h.Session().Push("/push/test", []byte("test push text"))
-	erpc.Debugf("HomeCallHandle: codec: %d, arg: %s", h.GetBodyCodec(), *arg)
+	yrpc.Debugf("HomeCallHandle: codec: %d, arg: %s", h.GetBodyCodec(), *arg)
 	return []byte("test call result text"), nil
 }
 
 // UnknownCallHandle handles unknown call message
-func UnknownCallHandle(ctx erpc.UnknownCallCtx) (interface{}, *erpc.Status) {
+func UnknownCallHandle(ctx yrpc.UnknownCallCtx) (interface{}, *yrpc.Status) {
 	ctx.Session().Push("/push/test", []byte("test unknown push text"))
 	var arg []byte
 	codecID, err := ctx.Bind(&arg)
 	if err != nil {
-		return nil, erpc.NewStatus(1001, "bind error", err.Error())
+		return nil, yrpc.NewStatus(1001, "bind error", err.Error())
 	}
-	erpc.Debugf("UnknownCallHandle: codec: %d, arg: %s", codecID, arg)
+	yrpc.Debugf("UnknownCallHandle: codec: %d, arg: %s", codecID, arg)
 	return []byte("test unknown call result text"), nil
 }

@@ -1,4 +1,5 @@
-// Copyright 2021 HenryLee. All Rights Reserved.
+// Copyright 2021-2023 HenryLee. All Rights Reserved.
+// Copyright 2024 sqos. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,8 +17,8 @@ package websocket
 import (
 	"net/http"
 
-	"github.com/andeya/erpc/v7"
-	ws "github.com/andeya/erpc/v7/mixer/websocket/websocket"
+	"github.com/sqos/yrpc"
+	ws "github.com/sqos/yrpc/mixer/websocket/websocket"
 )
 
 // NewHandshakeAuthPlugin creates a handshake auth plugin for server.
@@ -28,13 +29,13 @@ func NewHandshakeAuthPlugin(ckFn Checker, apFn Acceptor) *HandshakeAuthPlugin {
 	}
 }
 
-// Acceptor provide authenticated erpc.Session
+// Acceptor provide authenticated yrpc.Session
 // you can get the sessionID that your return by Checker()
-type Acceptor func(sess erpc.Session) *erpc.Status
+type Acceptor func(sess yrpc.Session) *yrpc.Status
 
 // Checker deal with http.Request and your authenticate logic,
-// the a sessionID returned will used by erpc.Session.SetID(), if auth succeeded.
-type Checker func(r *http.Request) (sessionID string, status *erpc.Status)
+// the a sessionID returned will used by yrpc.Session.SetID(), if auth succeeded.
+type Checker func(r *http.Request) (sessionID string, status *yrpc.Status)
 
 type HandshakeAuthPlugin struct {
 	CheckFunc  Checker
@@ -54,7 +55,7 @@ func (p *HandshakeAuthPlugin) Name() string {
 // note, the Header, it may covered the user's request.
 const sessionHeader = "Erpc-Session-Id"
 
-func (p *HandshakeAuthPlugin) PreHandshake(r *http.Request) *erpc.Status {
+func (p *HandshakeAuthPlugin) PreHandshake(r *http.Request) *yrpc.Status {
 	if p.CheckFunc == nil {
 		return nil
 	}
@@ -63,7 +64,7 @@ func (p *HandshakeAuthPlugin) PreHandshake(r *http.Request) *erpc.Status {
 	return stat
 }
 
-func (p *HandshakeAuthPlugin) PostAccept(sess erpc.Session, conn *ws.Conn) *erpc.Status {
+func (p *HandshakeAuthPlugin) PostAccept(sess yrpc.Session, conn *ws.Conn) *yrpc.Status {
 	if p.AcceptFunc == nil {
 		return nil
 	}

@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/goutil"
 )
 
 //go:generate go test -v -c -o "${GOPACKAGE}_server" $GOFILE
@@ -18,20 +18,20 @@ func TestServer(t *testing.T) {
 		return
 	}
 
-	defer erpc.FlushLogger()
-	srv := erpc.NewPeer(erpc.PeerConfig{
+	defer yrpc.FlushLogger()
+	srv := yrpc.NewPeer(yrpc.PeerConfig{
 		CountTime:  true,
 		ListenPort: 9090,
 	})
-	srv.RouteCall(func() erpc.CtrlStructPtr { return &Echo{Suffix: strconv.FormatInt(time.Now().UnixMilli(), 10)} })
+	srv.RouteCall(func() yrpc.CtrlStructPtr { return &Echo{Suffix: strconv.FormatInt(time.Now().UnixMilli(), 10)} })
 	srv.ListenAndServe()
 }
 
 type Echo struct {
-	erpc.CallCtx
+	yrpc.CallCtx
 	Suffix string
 }
 
-func (echo *Echo) AddSuffix(arg *string) (string, *erpc.Status) {
+func (echo *Echo) AddSuffix(arg *string) (string, *yrpc.Status) {
 	return fmt.Sprintf("%s ------ %s", *arg, echo.Suffix), nil
 }

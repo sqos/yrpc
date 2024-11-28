@@ -9,30 +9,30 @@ import (
 	"sync"
 	"time"
 
-	"github.com/andeya/erpc/v7"
+	"github.com/sqos/yrpc"
 	"github.com/tidwall/evio"
 )
 
-// NewClient creates a evio client, equivalent to erpc.NewPeer.
-func NewClient(cfg erpc.PeerConfig, globalLeftPlugin ...erpc.Plugin) erpc.Peer {
-	return erpc.NewPeer(cfg, globalLeftPlugin...)
+// NewClient creates a evio client, equivalent to yrpc.NewPeer.
+func NewClient(cfg yrpc.PeerConfig, globalLeftPlugin ...yrpc.Plugin) yrpc.Peer {
+	return yrpc.NewPeer(cfg, globalLeftPlugin...)
 }
 
 // Server a evio server
 type Server struct {
-	erpc.Peer
-	cfg             erpc.PeerConfig
+	yrpc.Peer
+	cfg             yrpc.PeerConfig
 	events          evio.Events
 	addr            string
 	readBufferSize  int
 	writeBufferSize int
-	protoFuncs      []erpc.ProtoFunc
+	protoFuncs      []yrpc.ProtoFunc
 }
 
 // NewServer creates a evio server.
-func NewServer(loops int, cfg erpc.PeerConfig, globalLeftPlugin ...erpc.Plugin) *Server {
+func NewServer(loops int, cfg yrpc.PeerConfig, globalLeftPlugin ...yrpc.Plugin) *Server {
 	// globalLeftPlugin = append(globalLeftPlugin, new(wakeWritePlugin))
-	p := erpc.NewPeer(cfg, globalLeftPlugin...)
+	p := yrpc.NewPeer(cfg, globalLeftPlugin...)
 	srv := &Server{
 		Peer: p,
 		cfg:  cfg,
@@ -42,14 +42,14 @@ func NewServer(loops int, cfg erpc.PeerConfig, globalLeftPlugin ...erpc.Plugin) 
 	srv.events.NumLoops = loops
 
 	srv.events.Serving = func(s evio.Server) (action evio.Action) {
-		erpc.Printf("listen and serve (%s)", srv.addr)
+		yrpc.Printf("listen and serve (%s)", srv.addr)
 		return
 	}
 
 	srv.events.Opened = func(c evio.Conn) (out []byte, opts evio.Options, action evio.Action) {
 		stat := srv.serveConn(c)
 		if !stat.OK() {
-			erpc.Debugf("serve connection fail: %s", stat.String())
+			yrpc.Debugf("serve connection fail: %s", stat.String())
 			action = evio.Close
 		}
 		opts.ReuseInputBuffer = true
@@ -59,7 +59,7 @@ func NewServer(loops int, cfg erpc.PeerConfig, globalLeftPlugin ...erpc.Plugin) 
 
 	srv.events.Closed = func(c evio.Conn, err error) (action evio.Action) {
 		if err != nil {
-			erpc.Debugf("closed: %s: %s, error: %s", c.LocalAddr().String(), c.RemoteAddr().String(), err.Error())
+			yrpc.Debugf("closed: %s: %s, error: %s", c.LocalAddr().String(), c.RemoteAddr().String(), err.Error())
 		}
 		con := c.Context().(*conn)
 		con.sess.Close()
@@ -97,18 +97,18 @@ func NewServer(loops int, cfg erpc.PeerConfig, globalLeftPlugin ...erpc.Plugin) 
 }
 
 // ListenAndServe turns on the listening service.
-func (srv *Server) ListenAndServe(protoFunc ...erpc.ProtoFunc) error {
+func (srv *Server) ListenAndServe(protoFunc ...yrpc.ProtoFunc) error {
 	switch srv.cfg.Network {
 	default:
 		return errors.New("unsupport evio network, refer to the following: tcp, tcp4, tcp6, unix")
 	case "tcp", "tcp4", "tcp6", "unix":
 	}
 	var isDefault bool
-	srv.readBufferSize, isDefault = erpc.SocketReadBuffer()
+	srv.readBufferSize, isDefault = yrpc.SocketReadBuffer()
 	if isDefault {
 		srv.readBufferSize = 4096
 	}
-	srv.writeBufferSize, isDefault = erpc.SocketWriteBuffer()
+	srv.writeBufferSize, isDefault = yrpc.SocketWriteBuffer()
 	if isDefault {
 		srv.writeBufferSize = 4096
 	}
@@ -116,7 +116,7 @@ func (srv *Server) ListenAndServe(protoFunc ...erpc.ProtoFunc) error {
 	return evio.Serve(srv.events, srv.addr)
 }
 
-func (srv *Server) serveConn(evioConn evio.Conn) (stat *erpc.Status) {
+func (srv *Server) serveConn(evioConn evio.Conn) (stat *yrpc.Status) {
 	c := &conn{
 		conn:        evioConn,
 		events:      srv.events,
@@ -141,7 +141,7 @@ func (srv *Server) serveConn(evioConn evio.Conn) (stat *erpc.Status) {
 type conn struct {
 	conn        evio.Conn
 	events      evio.Events
-	sess        erpc.Session
+	sess        yrpc.Session
 	remainingIn []byte
 	in          chan readData
 	inLock      sync.Mutex

@@ -1,6 +1,7 @@
 // Heartbeat is a generic timing heartbeat plugin.
 //
-// Copyright 2018 HenryLee. All Rights Reserved.
+// Copyright 2018-2023 HenryLee. All Rights Reserved.
+// Copyright 2024 sqos. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,8 +21,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/goutil/coarsetime"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/goutil/coarsetime"
 )
 
 const (
@@ -50,22 +51,22 @@ type (
 		// Name returns name.
 		Name() string
 		// PostNewPeer runs ping woker.
-		PostNewPeer(peer erpc.EarlyPeer) error
+		PostNewPeer(peer yrpc.EarlyPeer) error
 		// PostDial initializes heartbeat information.
-		PostDial(sess erpc.PreSession, isRedial bool) *erpc.Status
+		PostDial(sess yrpc.PreSession, isRedial bool) *yrpc.Status
 		// PostAccept initializes heartbeat information.
-		PostAccept(sess erpc.PreSession) *erpc.Status
+		PostAccept(sess yrpc.PreSession) *yrpc.Status
 		// PostWriteCall updates heartbeat information.
-		PostWriteCall(ctx erpc.WriteCtx) *erpc.Status
+		PostWriteCall(ctx yrpc.WriteCtx) *yrpc.Status
 		// PostWritePush updates heartbeat information.
-		PostWritePush(ctx erpc.WriteCtx) *erpc.Status
+		PostWritePush(ctx yrpc.WriteCtx) *yrpc.Status
 		// PostReadCallHeader updates heartbeat information.
-		PostReadCallHeader(ctx erpc.ReadCtx) *erpc.Status
+		PostReadCallHeader(ctx yrpc.ReadCtx) *yrpc.Status
 		// PostReadPushHeader updates heartbeat information.
-		PostReadPushHeader(ctx erpc.ReadCtx) *erpc.Status
+		PostReadPushHeader(ctx yrpc.ReadCtx) *yrpc.Status
 	}
 	heartPing struct {
-		peer           erpc.Peer
+		peer           yrpc.Peer
 		pingRate       time.Duration
 		mu             sync.RWMutex
 		once           sync.Once
@@ -75,13 +76,13 @@ type (
 )
 
 var (
-	_ erpc.PostNewPeerPlugin        = Ping(nil)
-	_ erpc.PostDialPlugin           = Ping(nil)
-	_ erpc.PostAcceptPlugin         = Ping(nil)
-	_ erpc.PostWriteCallPlugin      = Ping(nil)
-	_ erpc.PostWritePushPlugin      = Ping(nil)
-	_ erpc.PostReadCallHeaderPlugin = Ping(nil)
-	_ erpc.PostReadPushHeaderPlugin = Ping(nil)
+	_ yrpc.PostNewPeerPlugin        = Ping(nil)
+	_ yrpc.PostDialPlugin           = Ping(nil)
+	_ yrpc.PostAcceptPlugin         = Ping(nil)
+	_ yrpc.PostWriteCallPlugin      = Ping(nil)
+	_ yrpc.PostWritePushPlugin      = Ping(nil)
+	_ yrpc.PostReadCallHeaderPlugin = Ping(nil)
+	_ yrpc.PostReadPushHeaderPlugin = Ping(nil)
 )
 
 // SetRate sets heartbeat rate.
@@ -93,7 +94,7 @@ func (h *heartPing) SetRate(rateSecond int) {
 	h.pingRate = time.Second * time.Duration(rateSecond)
 	h.pingRateSecond = strconv.Itoa(rateSecond)
 	h.mu.Unlock()
-	erpc.Infof("set heartbeat rate: %ds", rateSecond)
+	yrpc.Infof("set heartbeat rate: %ds", rateSecond)
 }
 
 func (h *heartPing) getRate() time.Duration {
@@ -134,14 +135,14 @@ func (h *heartPing) Name() string {
 }
 
 // PostNewPeer runs ping worker.
-func (h *heartPing) PostNewPeer(peer erpc.EarlyPeer) error {
+func (h *heartPing) PostNewPeer(peer yrpc.EarlyPeer) error {
 	rangeSession := peer.RangeSession
 	go func() {
 		var isCall bool
 		for {
 			time.Sleep(h.getRate())
 			isCall = h.isCall()
-			rangeSession(func(sess erpc.Session) bool {
+			rangeSession(func(sess yrpc.Session) bool {
 				if !sess.Health() {
 					return true
 				}
@@ -166,63 +167,63 @@ func (h *heartPing) PostNewPeer(peer erpc.EarlyPeer) error {
 }
 
 // PostDial initializes heartbeat information.
-func (h *heartPing) PostDial(sess erpc.PreSession, _ bool) *erpc.Status {
+func (h *heartPing) PostDial(sess yrpc.PreSession, _ bool) *yrpc.Status {
 	return h.PostAccept(sess)
 }
 
 // PostAccept initializes heartbeat information.
-func (h *heartPing) PostAccept(sess erpc.PreSession) *erpc.Status {
+func (h *heartPing) PostAccept(sess yrpc.PreSession) *yrpc.Status {
 	rate := h.getRate()
 	initHeartbeatInfo(sess.Swap(), rate)
 	return nil
 }
 
 // PostWriteCall updates heartbeat information.
-func (h *heartPing) PostWriteCall(ctx erpc.WriteCtx) *erpc.Status {
+func (h *heartPing) PostWriteCall(ctx yrpc.WriteCtx) *yrpc.Status {
 	return h.PostWritePush(ctx)
 }
 
 // PostWritePush updates heartbeat information.
-func (h *heartPing) PostWritePush(ctx erpc.WriteCtx) *erpc.Status {
+func (h *heartPing) PostWritePush(ctx yrpc.WriteCtx) *yrpc.Status {
 	h.update(ctx)
 	return nil
 }
 
 // PostReadCallHeader updates heartbeat information.
-func (h *heartPing) PostReadCallHeader(ctx erpc.ReadCtx) *erpc.Status {
+func (h *heartPing) PostReadCallHeader(ctx yrpc.ReadCtx) *yrpc.Status {
 	return h.PostReadPushHeader(ctx)
 }
 
 // PostReadPushHeader updates heartbeat information.
-func (h *heartPing) PostReadPushHeader(ctx erpc.ReadCtx) *erpc.Status {
+func (h *heartPing) PostReadPushHeader(ctx yrpc.ReadCtx) *yrpc.Status {
 	h.update(ctx)
 	return nil
 }
 
-func (h *heartPing) goCall(sess erpc.Session) {
-	erpc.Go(func() {
+func (h *heartPing) goCall(sess yrpc.Session) {
+	yrpc.Go(func() {
 		if sess.Call(
 			HeartbeatServiceMethod, nil, nil,
-			erpc.WithSetMeta(heartbeatMetaKey, h.getPingRateSecond()),
+			yrpc.WithSetMeta(heartbeatMetaKey, h.getPingRateSecond()),
 		).Status() != nil {
 			sess.Close()
 		}
 	})
 }
 
-func (h *heartPing) goPush(sess erpc.Session) {
-	erpc.Go(func() {
+func (h *heartPing) goPush(sess yrpc.Session) {
+	yrpc.Go(func() {
 		if sess.Push(
 			HeartbeatServiceMethod,
 			nil,
-			erpc.WithSetMeta(heartbeatMetaKey, h.getPingRateSecond()),
+			yrpc.WithSetMeta(heartbeatMetaKey, h.getPingRateSecond()),
 		) != nil {
 			sess.Close()
 		}
 	})
 }
 
-func (h *heartPing) update(ctx erpc.PreCtx) {
+func (h *heartPing) update(ctx yrpc.PreCtx) {
 	sess := ctx.Session()
 	if !sess.Health() {
 		return

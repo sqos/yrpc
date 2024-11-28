@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/erpc/v7/examples/bench/msg"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/yrpc/examples/bench/msg"
+	"github.com/sqos/goutil"
 	proto "github.com/gogo/protobuf/proto"
 	"github.com/montanaflynn/stats"
 )
@@ -43,11 +43,11 @@ func TestMClient(t *testing.T) {
 
 	log.Printf("concurrency: %d\nrequests per client: %d\n\n", n, m)
 
-	defer erpc.SetLoggerLevel("ERROR")()
-	erpc.SetGopool(1024*1024*100, time.Minute*10)
+	defer yrpc.SetLoggerLevel("ERROR")()
+	yrpc.SetGopool(1024*1024*100, time.Minute*10)
 
 	serviceMethod := "Hello.Say"
-	client := erpc.NewPeer(erpc.PeerConfig{
+	client := yrpc.NewPeer(yrpc.PeerConfig{
 		Network:          *network,
 		DefaultBodyCodec: "protobuf",
 	})
@@ -111,7 +111,7 @@ func TestMClient(t *testing.T) {
 	wg.Wait()
 	totalT = time.Now().UnixNano() - totalT
 	totalT = totalT / 1000000
-	erpc.Printf("took %d ms for %d requests", totalT, n*m)
+	yrpc.Printf("took %d ms for %d requests", totalT, n*m)
 
 	totalD := make([]int64, 0, n*m)
 	for _, k := range d {
@@ -128,11 +128,11 @@ func TestMClient(t *testing.T) {
 	min, _ := stats.Min(totalD2)
 	p99, _ := stats.Percentile(totalD2, 99.9)
 
-	erpc.Printf("sent     requests    : %d\n", n*m)
-	erpc.Printf("received requests    : %d\n", atomic.LoadUint64(&trans))
-	erpc.Printf("received requests_OK : %d\n", atomic.LoadUint64(&transOK))
-	erpc.Printf("throughput  (TPS)    : %d\n", int64(n*m)*1000/totalT)
-	erpc.Printf("mean: %.f ns, median: %.f ns, max: %.f ns, min: %.f ns, p99: %.f ns\n", mean, median, max, min, p99)
-	erpc.Printf("mean: %d ms, median: %d ms, max: %d ms, min: %d ms, p99: %d ms\n", int64(mean/1000000), int64(median/1000000), int64(max/1000000), int64(min/1000000), int64(p99/1000000))
+	yrpc.Printf("sent     requests    : %d\n", n*m)
+	yrpc.Printf("received requests    : %d\n", atomic.LoadUint64(&trans))
+	yrpc.Printf("received requests_OK : %d\n", atomic.LoadUint64(&transOK))
+	yrpc.Printf("throughput  (TPS)    : %d\n", int64(n*m)*1000/totalT)
+	yrpc.Printf("mean: %.f ns, median: %.f ns, max: %.f ns, min: %.f ns, p99: %.f ns\n", mean, median, max, min, p99)
+	yrpc.Printf("mean: %d ms, median: %d ms, max: %d ms, min: %d ms, p99: %d ms\n", int64(mean/1000000), int64(median/1000000), int64(max/1000000), int64(min/1000000), int64(p99/1000000))
 
 }

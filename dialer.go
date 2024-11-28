@@ -1,4 +1,5 @@
-// Copyright 2015-2019 HenryLee. All Rights Reserved.
+// Copyright 2015-2023 HenryLee. All Rights Reserved.
+// Copyright 2024 sqos. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package erpc
+package yrpc
 
 import (
 	"context"
@@ -20,8 +21,8 @@ import (
 	"net"
 	"time"
 
-	"github.com/andeya/erpc/v7/kcp"
-	"github.com/andeya/erpc/v7/quic"
+	"github.com/sqos/yrpc/kcp"
+	"github.com/sqos/yrpc/quic"
 )
 
 // Dialer dial-up connection

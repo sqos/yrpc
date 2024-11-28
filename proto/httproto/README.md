@@ -16,7 +16,7 @@ Accept-Encoding: gzip
 Content-Length: 24
 Content-Type: application/json;charset=utf-8
 Host: localhost:9090
-User-Agent: erpc-httproto/1.1
+User-Agent: yrpc-httproto/1.1
 X-Mtype: 1
 X-Seq: 1
 
@@ -63,7 +63,7 @@ func RegBodyCodec(contentType string, codecID byte)
 
 ### Usage
 
-`import "github.com/andeya/erpc/v7/proto/httproto"`
+`import "github.com/sqos/yrpc/proto/httproto"`
 
 #### Test
 
@@ -76,19 +76,19 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andeya/goutil/httpbody"
+	"github.com/sqos/goutil/httpbody"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/erpc/v7/proto/httproto"
-	"github.com/andeya/erpc/v7/xfer/gzip"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/yrpc/proto/httproto"
+	"github.com/sqos/yrpc/xfer/gzip"
 )
 
 type Home struct {
-	erpc.CallCtx
+	yrpc.CallCtx
 }
 
-func (h *Home) Test(arg *map[string]string) (map[string]interface{}, *erpc.Status) {
-	erpc.Infof("peer_id: %s", h.PeekMeta("peer_id"))
+func (h *Home) Test(arg *map[string]string) (map[string]interface{}, *yrpc.Status) {
+	yrpc.Infof("peer_id: %s", h.PeekMeta("peer_id"))
 	return map[string]interface{}{
 		"arg": *arg,
 	}, nil
@@ -98,14 +98,14 @@ func TestHTTProto(t *testing.T) {
 	gzip.Reg('g', "gizp-5", 5)
 
 	// Server
-	srv := erpc.NewPeer(erpc.PeerConfig{ListenPort: 9090})
+	srv := yrpc.NewPeer(yrpc.PeerConfig{ListenPort: 9090})
 	srv.RouteCall(new(Home))
 	go srv.ListenAndServe(httproto.NewHTTProtoFunc(true))
 	time.Sleep(1e9)
 
 	url := "http://localhost:9090/home/test?peer_id=110"
 	// TP Client
-	cli := erpc.NewPeer(erpc.PeerConfig{})
+	cli := yrpc.NewPeer(yrpc.PeerConfig{})
 	sess, stat := cli.Dial(":9090", httproto.NewHTTProtoFunc())
 	if !stat.OK() {
 		t.Fatal(stat)
@@ -118,12 +118,12 @@ func TestHTTProto(t *testing.T) {
 		url,
 		arg,
 		&result,
-		// erpc.WithXferPipe('g'),
+		// yrpc.WithXferPipe('g'),
 	).Status()
 	if !stat.OK() {
 		t.Fatal(stat)
 	}
-	t.Logf("erpc client response: %v", result)
+	t.Logf("yrpc client response: %v", result)
 
 	// HTTP Client
 	contentType, body, _ := httpbody.NewJSONBody(arg)

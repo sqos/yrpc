@@ -3,9 +3,9 @@ package config
 import (
 	"testing"
 
-	"github.com/andeya/cfgo"
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/goutil"
+	"github.com/sqos/cfgo"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/goutil"
 )
 
 //go:generate go test -v -c -o "${GOPACKAGE}_client" $GOFILE
@@ -15,18 +15,18 @@ func TestClient(t *testing.T) {
 		t.Log("skip test in go test")
 		return
 	}
-	defer erpc.FlushLogger()
-	cfg := erpc.PeerConfig{}
+	defer yrpc.FlushLogger()
+	cfg := yrpc.PeerConfig{}
 
 	// auto create and sync config/config.yaml
 	cfgo.MustGet("config/config.yaml", true).MustReg("cfg_cli", &cfg)
 
-	cli := erpc.NewPeer(cfg)
+	cli := yrpc.NewPeer(cfg)
 	defer cli.Close()
 
 	sess, stat := cli.Dial(":9090")
 	if !stat.OK() {
-		erpc.Fatalf("%v", stat)
+		yrpc.Fatalf("%v", stat)
 	}
 
 	var result int
@@ -36,7 +36,7 @@ func TestClient(t *testing.T) {
 	).Status()
 
 	if !stat.OK() {
-		erpc.Fatalf("%v", stat)
+		yrpc.Fatalf("%v", stat)
 	}
-	erpc.Printf("result: 1+2+3+4+5 = %d", result)
+	yrpc.Printf("result: 1+2+3+4+5 = %d", result)
 }

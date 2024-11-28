@@ -1,9 +1,9 @@
-package erpc_test
+package yrpc_test
 
 import (
 	"testing"
 
-	"github.com/andeya/erpc/v7"
+	"github.com/sqos/yrpc"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,7 +20,7 @@ func TestHTTPServiceMethodMapper(t *testing.T) {
 		{"ABC_XYZ", "/abc/xyz"},
 	}
 	for _, c := range cases {
-		got := erpc.HTTPServiceMethodMapper("", c.src)
+		got := yrpc.HTTPServiceMethodMapper("", c.src)
 		if got != c.dst {
 			t.Fatalf("%s: got: %s, expect: %s", c.src, got, c.dst)
 		}
@@ -40,7 +40,7 @@ func TestRPCServiceMethodMapper(t *testing.T) {
 		{"ABC_XYZ", "ABC.XYZ"},
 	}
 	for _, c := range cases {
-		got := erpc.RPCServiceMethodMapper("", c.src)
+		got := yrpc.RPCServiceMethodMapper("", c.src)
 		if got != c.dst {
 			t.Fatalf("%s: got: %s, expect: %s", c.src, got, c.dst)
 		}
@@ -48,28 +48,28 @@ func TestRPCServiceMethodMapper(t *testing.T) {
 }
 
 func TestFakeAddr(t *testing.T) {
-	addr := erpc.NewFakeAddr("", "", "")
+	addr := yrpc.NewFakeAddr("", "", "")
 	assert.Equal(t, "0.0.0.0:0", addr.String())
 	assert.Equal(t, "tcp", addr.Network())
 
-	addr = erpc.NewFakeAddr("tcp", "", "1234")
+	addr = yrpc.NewFakeAddr("tcp", "", "1234")
 	assert.Equal(t, "0.0.0.0:1234", addr.String())
 
-	addr, err := erpc.NewFakeAddr2("", "")
+	addr, err := yrpc.NewFakeAddr2("", "")
 	assert.NoError(t, err)
 	assert.Equal(t, "0.0.0.0:0", addr.String())
 	assert.Equal(t, "tcp", addr.Network())
 	assert.Equal(t, "0.0.0.0", addr.Host())
 	assert.Equal(t, "0", addr.Port())
 
-	addr, err = erpc.NewFakeAddr2("tcp6", ":1234")
+	addr, err = yrpc.NewFakeAddr2("tcp6", ":1234")
 	assert.NoError(t, err)
 	assert.Equal(t, "0.0.0.0:1234", addr.String())
 	assert.Equal(t, "tcp6", addr.Network())
 	assert.Equal(t, "0.0.0.0", addr.Host())
 	assert.Equal(t, "1234", addr.Port())
 
-	addr, err = erpc.NewFakeAddr2("tcp6", "192.0.0.10:1234")
+	addr, err = yrpc.NewFakeAddr2("tcp6", "192.0.0.10:1234")
 	assert.NoError(t, err)
 	assert.Equal(t, "192.0.0.10:1234", addr.String())
 	assert.Equal(t, "tcp6", addr.Network())

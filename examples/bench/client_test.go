@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/erpc/v7/examples/bench/msg"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/yrpc/examples/bench/msg"
+	"github.com/sqos/goutil"
 	"github.com/montanaflynn/stats"
 )
 
@@ -32,8 +32,8 @@ func TestClient(t *testing.T) {
 
 	flag.Parse()
 
-	defer erpc.SetLoggerLevel("ERROR")()
-	erpc.SetGopool(1024*1024*100, time.Minute*10)
+	defer yrpc.SetLoggerLevel("ERROR")()
+	yrpc.SetGopool(1024*1024*100, time.Minute*10)
 
 	conc, tn, err := msg.CheckArgs(*concurrency, *total)
 	if err != nil {
@@ -46,7 +46,7 @@ func TestClient(t *testing.T) {
 	log.Printf("concurrency: %d\nrequests per client: %d\n\n", n, m)
 
 	serviceMethod := "Hello.Say"
-	client := erpc.NewPeer(erpc.PeerConfig{
+	client := yrpc.NewPeer(yrpc.PeerConfig{
 		Network:          *network,
 		DefaultBodyCodec: "protobuf",
 	})

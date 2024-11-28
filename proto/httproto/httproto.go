@@ -1,6 +1,7 @@
 // Package httproto is implemented HTTP style socket communication protocol.
 //
-// Copyright 2018 HenryLee. All Rights Reserved.
+// Copyright 2018-2023 HenryLee. All Rights Reserved.
+// Copyright 2024 sqos. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,13 +27,13 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/goutil"
 
-	"github.com/andeya/erpc/v7/codec"
-	"github.com/andeya/erpc/v7/utils"
-	"github.com/andeya/erpc/v7/xfer"
-	"github.com/andeya/erpc/v7/xfer/gzip"
+	"github.com/sqos/yrpc/codec"
+	"github.com/sqos/yrpc/utils"
+	"github.com/sqos/yrpc/xfer"
+	"github.com/sqos/yrpc/xfer/gzip"
 )
 
 var (
@@ -85,13 +86,13 @@ func GetContentType(codecID byte, defContentType string) string {
 //
 //	Only support xfer filter: gzip
 //	Must use HTTP service method mapper
-func NewHTTProtoFunc(printMessage ...bool) erpc.ProtoFunc {
-	erpc.SetServiceMethodMapper(erpc.HTTPServiceMethodMapper)
+func NewHTTProtoFunc(printMessage ...bool) yrpc.ProtoFunc {
+	yrpc.SetServiceMethodMapper(yrpc.HTTPServiceMethodMapper)
 	var printable bool
 	if len(printMessage) > 0 {
 		printable = printMessage[0]
 	}
-	return func(rw erpc.IOWithReadBuffer) erpc.Proto {
+	return func(rw yrpc.IOWithReadBuffer) yrpc.Proto {
 		return &httproto{
 			id:           'h',
 			name:         "http",
@@ -102,7 +103,7 @@ func NewHTTProtoFunc(printMessage ...bool) erpc.ProtoFunc {
 }
 
 type httproto struct {
-	rw           erpc.IOWithReadBuffer
+	rw           yrpc.IOWithReadBuffer
 	rMu          sync.Mutex
 	name         string
 	id           byte
@@ -116,7 +117,7 @@ func (h *httproto) Version() (byte, string) {
 
 // Pack writes the Message into the connection.
 // NOTE: Make sure to write only once or there will be package contamination!
-func (h *httproto) Pack(m erpc.Message) (err error) {
+func (h *httproto) Pack(m yrpc.Message) (err error) {
 	// marshal body
 	bodyBytes, err := m.MarshalBody()
 	if err != nil {
@@ -152,20 +153,20 @@ func (h *httproto) Pack(m erpc.Message) (err error) {
 	bb := utils.AcquireByteBuffer()
 	defer utils.ReleaseByteBuffer(bb)
 	switch m.Mtype() {
-	case erpc.TypeCall, erpc.TypeAuthCall:
+	case yrpc.TypeCall, yrpc.TypeAuthCall:
 		err = h.packRequest(m, header, bb, bodyBytes)
-	case erpc.TypeReply, erpc.TypeAuthReply:
+	case yrpc.TypeReply, yrpc.TypeAuthReply:
 		err = h.packResponse(m, header, bb, bodyBytes)
-	// case erpc.TypePush:
+	// case yrpc.TypePush:
 	default:
-		return fmt.Errorf("unsupport message type: %d(%s)", m.Mtype(), erpc.TypeText(m.Mtype()))
+		return fmt.Errorf("unsupport message type: %d(%s)", m.Mtype(), yrpc.TypeText(m.Mtype()))
 	}
 	if err != nil {
 		return err
 	}
 	m.SetSize(uint32(bb.Len()))
 	if h.printMessage {
-		erpc.Printf("Send HTTP Message:\n%s", goutil.BytesToString(bb.B))
+		yrpc.Printf("Send HTTP Message:\n%s", goutil.BytesToString(bb.B))
 	}
 	_, err = h.rw.Write(bb.B)
 	return err
@@ -177,7 +178,7 @@ var (
 	crlfBytes    = []byte("\r\n")
 )
 
-func (h *httproto) packRequest(m erpc.Message, header http.Header, bb *utils.ByteBuffer, bodyBytes []byte) error {
+func (h *httproto) packRequest(m yrpc.Message, header http.Header, bb *utils.ByteBuffer, bodyBytes []byte) error {
 	u, err := url.Parse(m.ServiceMethod())
 	if err != nil {
 		return err
@@ -185,7 +186,7 @@ func (h *httproto) packRequest(m erpc.Message, header http.Header, bb *utils.Byt
 	if u.Host != "" {
 		header.Set("Host", u.Host)
 	}
-	header.Set("User-Agent", "erpc-httproto/1.1")
+	header.Set("User-Agent", "yrpc-httproto/1.1")
 	bb.Write(methodBytes)
 	bb.WriteByte(' ')
 	if u.RawQuery == "" {
@@ -210,7 +211,7 @@ var (
 	bizErrBytes = []byte("299 Business Error")
 )
 
-func (h *httproto) packResponse(m erpc.Message, header http.Header, bb *utils.ByteBuffer, bodyBytes []byte) error {
+func (h *httproto) packResponse(m yrpc.Message, header http.Header, bb *utils.ByteBuffer, bodyBytes []byte) error {
 	bb.Write(versionBytes)
 	bb.WriteByte(' ')
 	if stat := m.Status(); !stat.OK() {
@@ -242,7 +243,7 @@ var respPrefix = []byte("HTTP/")
 
 // Unpack reads bytes from the connection to the Message.
 // nolint:ineffassign
-func (h *httproto) Unpack(m erpc.Message) error {
+func (h *httproto) Unpack(m yrpc.Message) error {
 	h.rMu.Lock()
 	defer h.rMu.Unlock()
 	bb := utils.AcquireByteBuffer()
@@ -265,7 +266,7 @@ func (h *httproto) Unpack(m erpc.Message) error {
 
 	// response
 	if bytes.Equal(prefixBytes, respPrefix) {
-		m.SetMtype(erpc.TypeReply)
+		m.SetMtype(yrpc.TypeReply)
 		// status line
 		var ok bool
 		a := bytes.SplitN(firstLine, spaceBytes, 2)
@@ -283,7 +284,7 @@ func (h *httproto) Unpack(m erpc.Message) error {
 			return err
 		}
 		if h.printMessage {
-			erpc.Printf("Recv HTTP Message:\n%s\r\n%s",
+			yrpc.Printf("Recv HTTP Message:\n%s\r\n%s",
 				goutil.BytesToString(firstLine), goutil.BytesToString(msg))
 		}
 		size += len(firstLine)
@@ -296,7 +297,7 @@ func (h *httproto) Unpack(m erpc.Message) error {
 	}
 
 	// request
-	m.SetMtype(erpc.TypeCall)
+	m.SetMtype(yrpc.TypeCall)
 	a := bytes.SplitN(firstLine, spaceBytes, 3)
 	if len(a) != 3 {
 		return errBadHTTPMsg
@@ -314,7 +315,7 @@ func (h *httproto) Unpack(m erpc.Message) error {
 		return err
 	}
 	if h.printMessage {
-		erpc.Printf("Recv HTTP Message:\n%s\r\n%s",
+		yrpc.Printf("Recv HTTP Message:\n%s\r\n%s",
 			goutil.BytesToString(firstLine), goutil.BytesToString(msg))
 	}
 	size += len(firstLine)
@@ -334,7 +335,7 @@ var (
 	errUnsupportHTTPCode  = errors.New("unsupport HTTP status code")
 )
 
-func (h *httproto) unpack(m erpc.Message, bb *utils.ByteBuffer) (size int, msg []byte, err error) {
+func (h *httproto) unpack(m yrpc.Message, bb *utils.ByteBuffer) (size int, msg []byte, err error) {
 	var bodySize int
 	var a [][]byte
 	for i := 0; true; i++ {

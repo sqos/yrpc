@@ -5,20 +5,20 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/erpc/v7/codec"
-	"github.com/andeya/erpc/v7/utils"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/yrpc/codec"
+	"github.com/sqos/yrpc/utils"
+	"github.com/sqos/goutil"
 	"github.com/apache/thrift/lib/go/thrift"
 )
 
-// NewStructProtoFunc creates erpc.ProtoFunc of Thrift protocol.
+// NewStructProtoFunc creates yrpc.ProtoFunc of Thrift protocol.
 // NOTE:
 //
 //	The body codec must be thrift, directly encoded as a thrift.TStruct;
 //	Support the Meta, but not support the BodyCodec and XferPipe.
-func NewStructProtoFunc() erpc.ProtoFunc {
-	return func(rw erpc.IOWithReadBuffer) erpc.Proto {
+func NewStructProtoFunc() yrpc.ProtoFunc {
+	return func(rw yrpc.IOWithReadBuffer) yrpc.Proto {
 		p := &tStructProto{
 			id:        's',
 			name:      "thrift-struct",
@@ -40,7 +40,7 @@ func (t *tStructProto) Version() (byte, string) {
 
 // Pack writes the Message into the connection.
 // NOTE: Make sure to write only once or there will be package contamination!
-func (t *tStructProto) Pack(m erpc.Message) error {
+func (t *tStructProto) Pack(m yrpc.Message) error {
 	err := t.structPack(m)
 	if err != nil {
 		t.tProtocol.Transport().Close()
@@ -48,7 +48,7 @@ func (t *tStructProto) Pack(m erpc.Message) error {
 	return err
 }
 
-func (t *tStructProto) Unpack(m erpc.Message) error {
+func (t *tStructProto) Unpack(m yrpc.Message) error {
 	err := t.structUnpack(m)
 	if err != nil {
 		t.tProtocol.Transport().Close()
@@ -56,7 +56,7 @@ func (t *tStructProto) Unpack(m erpc.Message) error {
 	return err
 }
 
-func (t *tStructProto) structPack(m erpc.Message) error {
+func (t *tStructProto) structPack(m yrpc.Message) error {
 	if m.XferPipe().Len() > 0 {
 		return errors.New("unsupport transfer pipe")
 	}
@@ -97,7 +97,7 @@ func (t *tStructProto) structPack(m erpc.Message) error {
 	return m.SetSize(uint32(t.rwCounter.Writed()))
 }
 
-func (t *tStructProto) structUnpack(m erpc.Message) error {
+func (t *tStructProto) structUnpack(m yrpc.Message) error {
 	t.unpackLock.Lock()
 	defer t.unpackLock.Unlock()
 	t.rwCounter.WriteCounter.Zero()

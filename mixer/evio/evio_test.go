@@ -4,10 +4,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/erpc/v7/mixer/evio"
-	"github.com/andeya/erpc/v7/proto/jsonproto"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/yrpc/mixer/evio"
+	"github.com/sqos/yrpc/proto/jsonproto"
+	"github.com/sqos/goutil"
 )
 
 //go:generate go test -v -c -o "${GOPACKAGE}" $GOFILE
@@ -18,17 +18,17 @@ func TestEvio(t *testing.T) {
 		return
 	}
 	// server
-	srv := evio.NewServer(1, erpc.PeerConfig{ListenPort: 9090})
+	srv := evio.NewServer(1, yrpc.PeerConfig{ListenPort: 9090})
 	// use TLS
-	srv.SetTLSConfig(erpc.GenerateTLSConfigForServer())
+	srv.SetTLSConfig(yrpc.GenerateTLSConfigForServer())
 	srv.RouteCall(new(Home))
 	go srv.ListenAndServe(jsonproto.NewJSONProtoFunc())
 	time.Sleep(1e9)
 
 	// client
-	cli := evio.NewClient(erpc.PeerConfig{})
+	cli := evio.NewClient(yrpc.PeerConfig{})
 	// use TLS
-	cli.SetTLSConfig(erpc.GenerateTLSConfigForClient())
+	cli.SetTLSConfig(yrpc.GenerateTLSConfigForClient())
 	cli.RoutePush(new(Push))
 	sess, stat := cli.Dial(":9090", jsonproto.NewJSONProtoFunc())
 	if !stat.OK() {
@@ -40,7 +40,7 @@ func TestEvio(t *testing.T) {
 			"author": "andeya",
 		},
 		&result,
-		erpc.WithAddMeta("peer_id", "110"),
+		yrpc.WithAddMeta("peer_id", "110"),
 	).Status()
 	if !stat.OK() {
 		t.Fatal(stat)
@@ -50,10 +50,10 @@ func TestEvio(t *testing.T) {
 }
 
 type Home struct {
-	erpc.CallCtx
+	yrpc.CallCtx
 }
 
-func (h *Home) Test(arg *map[string]string) (map[string]interface{}, *erpc.Status) {
+func (h *Home) Test(arg *map[string]string) (map[string]interface{}, *yrpc.Status) {
 	h.Session().Push("/push/test", map[string]string{
 		"your_id": string(h.PeekMeta("peer_id")),
 	})
@@ -63,10 +63,10 @@ func (h *Home) Test(arg *map[string]string) (map[string]interface{}, *erpc.Statu
 }
 
 type Push struct {
-	erpc.PushCtx
+	yrpc.PushCtx
 }
 
-func (p *Push) Test(arg *map[string]string) *erpc.Status {
-	erpc.Infof("receive push(%s):\narg: %#v\n", p.IP(), arg)
+func (p *Push) Test(arg *map[string]string) *yrpc.Status {
+	yrpc.Infof("receive push(%s):\narg: %#v\n", p.IP(), arg)
 	return nil
 }

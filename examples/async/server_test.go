@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/goutil"
 )
 
 //go:generate go test -v -c -o "${GOPACKAGE}_server" $GOFILE
@@ -16,8 +16,8 @@ func TestServer(t *testing.T) {
 		return
 	}
 
-	defer erpc.FlushLogger()
-	srv := erpc.NewPeer(erpc.PeerConfig{
+	defer yrpc.FlushLogger()
+	srv := yrpc.NewPeer(yrpc.PeerConfig{
 		CountTime:  true,
 		ListenPort: 9090,
 	})
@@ -26,10 +26,10 @@ func TestServer(t *testing.T) {
 }
 
 type test struct {
-	erpc.CallCtx
+	yrpc.CallCtx
 }
 
-func (t *test) Wait3s(arg *string) (string, *erpc.Status) {
+func (t *test) Wait3s(arg *string) (string, *yrpc.Status) {
 	time.Sleep(3 * time.Second)
 	return *arg + " -> OK", nil
 }

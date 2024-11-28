@@ -3,8 +3,8 @@ package gzip_test
 import (
 	"testing"
 
-	"github.com/andeya/erpc/v7/xfer"
-	"github.com/andeya/erpc/v7/xfer/gzip"
+	"github.com/sqos/yrpc/xfer"
+	"github.com/sqos/yrpc/xfer/gzip"
 )
 
 func TestGzip(t *testing.T) {

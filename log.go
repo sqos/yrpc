@@ -1,4 +1,5 @@
-// Copyright 2015-2019 HenryLee. All Rights Reserved.
+// Copyright 2015-2023 HenryLee. All Rights Reserved.
+// Copyright 2024 sqos. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package erpc
+package yrpc
 
 import (
 	"fmt"
@@ -23,11 +24,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/andeya/goutil/graceful"
+	"github.com/sqos/goutil/graceful"
 
-	"github.com/andeya/erpc/v7/utils"
-	"github.com/andeya/erpc/v7/utils/color"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc/utils"
+	"github.com/sqos/yrpc/utils/color"
+	"github.com/sqos/goutil"
 )
 
 type (
@@ -179,8 +180,8 @@ var loggerOutputter = func() LoggerOutputter {
 			buf.WriteString(" [" + loggerLevelTagMap[loggerLevel] + "] ")
 			buf.Write(msgBytes)
 			line := goutil.GetCallLine(calldepth + 1)
-			if !strings.Contains(line, "github.com/andeya/erpc") &&
-				!strings.Contains(line, "github.com/andeya/goutil/graceful") {
+			if !strings.Contains(line, "github.com/sqos/yrpc") &&
+				!strings.Contains(line, "github.com/sqos/goutil/graceful") {
 				buf.WriteString(" <" + line + ">\n")
 			} else {
 				buf.WriteByte('\n')

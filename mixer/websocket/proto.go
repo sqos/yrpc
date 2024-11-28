@@ -1,4 +1,5 @@
-// Copyright 2018 HenryLee. All Rights Reserved.
+// Copyright 2018-2023 HenryLee. All Rights Reserved.
+// Copyright 2024 sqos. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,18 +18,18 @@ package websocket
 import (
 	"bytes"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/erpc/v7/mixer/websocket/jsonSubProto"
-	ws "github.com/andeya/erpc/v7/mixer/websocket/websocket"
-	"github.com/andeya/erpc/v7/socket"
-	"github.com/andeya/erpc/v7/utils"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/yrpc/mixer/websocket/jsonSubProto"
+	ws "github.com/sqos/yrpc/mixer/websocket/websocket"
+	"github.com/sqos/yrpc/socket"
+	"github.com/sqos/yrpc/utils"
 )
 
 var defaultProto = jsonSubProto.NewJSONSubProtoFunc()
 
 // NewWsProtoFunc wraps a protocol to a new websocket protocol.
-func NewWsProtoFunc(subProto ...erpc.ProtoFunc) erpc.ProtoFunc {
-	return func(rw erpc.IOWithReadBuffer) socket.Proto {
+func NewWsProtoFunc(subProto ...yrpc.ProtoFunc) yrpc.ProtoFunc {
+	return func(rw yrpc.IOWithReadBuffer) socket.Proto {
 		// When called, the lock of the external socket.Socket is already locked,
 		// so it is concurrent security.
 		connIface := rw.(socket.UnsafeSocket).RawLocked()
@@ -70,7 +71,7 @@ func (w *wsProto) Version() (byte, string) {
 
 // Pack writes the Message into the connection.
 // NOTE: Make sure to write only once or there will be package contamination!
-func (w *wsProto) Pack(m erpc.Message) error {
+func (w *wsProto) Pack(m yrpc.Message) error {
 	w.subConn.w.Reset()
 	err := w.subProto.Pack(m)
 	if err != nil {
@@ -81,7 +82,7 @@ func (w *wsProto) Pack(m erpc.Message) error {
 
 // Unpack reads bytes from the connection to the Message.
 // NOTE: Concurrent unsafe!
-func (w *wsProto) Unpack(m erpc.Message) error {
+func (w *wsProto) Unpack(m yrpc.Message) error {
 	err := ws.Message.Receive(w.conn, w.subConn.rBytes)
 	if err != nil {
 		return err

@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/erpc/v7/xfer/gzip"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/yrpc/xfer/gzip"
+	"github.com/sqos/goutil"
 )
 
 //go:generate go test -v -c -o "${GOPACKAGE}_server" $GOFILE
@@ -18,13 +18,13 @@ func TestServer(t *testing.T) {
 		return
 	}
 
-	defer erpc.FlushLogger()
+	defer yrpc.FlushLogger()
 	gzip.Reg('g', "gizp", 5)
 
-	go erpc.GraceSignal()
-	// erpc.SetReadLimit(10)
-	erpc.SetShutdown(time.Second*20, nil, nil)
-	var peer = erpc.NewPeer(erpc.PeerConfig{
+	go yrpc.GraceSignal()
+	// yrpc.SetReadLimit(10)
+	yrpc.SetShutdown(time.Second*20, nil, nil)
+	var peer = yrpc.NewPeer(yrpc.PeerConfig{
 		SlowCometDuration: time.Millisecond * 500,
 		PrintDetail:       true,
 		CountTime:         true,
@@ -38,16 +38,16 @@ func TestServer(t *testing.T) {
 
 // Home controller
 type Home struct {
-	erpc.CallCtx
+	yrpc.CallCtx
 }
 
 // Test handler
-func (h *Home) Test(arg *map[string]interface{}) (map[string]interface{}, *erpc.Status) {
+func (h *Home) Test(arg *map[string]interface{}) (map[string]interface{}, *yrpc.Status) {
 	h.Session().Push("/push/test", map[string]interface{}{
 		"your_id": string(h.PeekMeta("peer_id")),
 	})
 	h.VisitMeta(func(k, v []byte) {
-		erpc.Infof("meta: key: %s, value: %s", k, v)
+		yrpc.Infof("meta: key: %s, value: %s", k, v)
 	})
 	time.Sleep(5e9)
 	return map[string]interface{}{
@@ -57,7 +57,7 @@ func (h *Home) Test(arg *map[string]interface{}) (map[string]interface{}, *erpc.
 }
 
 // UnknownCallHandle handles unknown call message
-func UnknownCallHandle(ctx erpc.UnknownCallCtx) (interface{}, *erpc.Status) {
+func UnknownCallHandle(ctx yrpc.UnknownCallCtx) (interface{}, *yrpc.Status) {
 	time.Sleep(1)
 	var v = struct {
 		RawMessage json.RawMessage
@@ -65,9 +65,9 @@ func UnknownCallHandle(ctx erpc.UnknownCallCtx) (interface{}, *erpc.Status) {
 	}{}
 	codecID, err := ctx.Bind(&v)
 	if err != nil {
-		return nil, erpc.NewStatus(1001, "bind error", err.Error())
+		return nil, yrpc.NewStatus(1001, "bind error", err.Error())
 	}
-	erpc.Debugf("UnknownCallHandle: codec: %d, RawMessage: %s, bytes: %s",
+	yrpc.Debugf("UnknownCallHandle: codec: %d, RawMessage: %s, bytes: %s",
 		codecID, v.RawMessage, v.Bytes,
 	)
 	ctx.Session().Push("/push/test", map[string]interface{}{

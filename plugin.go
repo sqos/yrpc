@@ -1,4 +1,5 @@
-// Copyright 2015-2019 HenryLee. All Rights Reserved.
+// Copyright 2015-2023 HenryLee. All Rights Reserved.
+// Copyright 2024 sqos. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,14 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package erpc
+package yrpc
 
 import (
 	"fmt"
 	"net"
 
-	"github.com/andeya/goutil"
-	"github.com/andeya/goutil/errors"
+	"github.com/sqos/goutil"
+	"github.com/sqos/goutil/errors"
 )
 
 // Plug-ins during runtime

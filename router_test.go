@@ -1,10 +1,10 @@
-package erpc
+package yrpc
 
 import (
 	"reflect"
 	"testing"
 
-	"github.com/andeya/goutil"
+	"github.com/sqos/goutil"
 	"github.com/stretchr/testify/assert"
 )
 

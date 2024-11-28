@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/goutil"
 )
 
 //go:generate go test -v -c -o "${GOPACKAGE}_client" $GOFILE
@@ -15,44 +15,44 @@ func TestClient(t *testing.T) {
 		t.Log("skip test in go test")
 		return
 	}
-	defer erpc.SetLoggerLevel("ERROR")()
+	defer yrpc.SetLoggerLevel("ERROR")()
 
-	cli := erpc.NewPeer(erpc.PeerConfig{Network: "kcp"})
+	cli := yrpc.NewPeer(yrpc.PeerConfig{Network: "kcp"})
 	defer cli.Close()
 	// e := cli.SetTLSConfigFromFile("cert.pem", "key.pem", true)
 	// if e != nil {
-	// 	erpc.Fatalf("%v", e)
+	// 	yrpc.Fatalf("%v", e)
 	// }
 
 	cli.RoutePush(new(Push))
 
 	sess, stat := cli.Dial(":9090")
 	if !stat.OK() {
-		erpc.Fatalf("%v", stat)
+		yrpc.Fatalf("%v", stat)
 	}
 
 	var result int
 	stat = sess.Call("/math/add",
 		[]int{1, 2, 3, 4, 5},
 		&result,
-		erpc.WithAddMeta("author", "andeya"),
+		yrpc.WithAddMeta("author", "andeya"),
 	).Status()
 	if !stat.OK() {
-		erpc.Fatalf("%v", stat)
+		yrpc.Fatalf("%v", stat)
 	}
-	erpc.Printf("result: %d", result)
+	yrpc.Printf("result: %d", result)
 
-	erpc.Printf("wait for 10s...")
+	yrpc.Printf("wait for 10s...")
 	time.Sleep(time.Second * 10)
 }
 
 // Push push handler
 type Push struct {
-	erpc.PushCtx
+	yrpc.PushCtx
 }
 
 // Push handles '/push/status' message
-func (p *Push) Status(arg *string) *erpc.Status {
-	erpc.Printf("%s", *arg)
+func (p *Push) Status(arg *string) *yrpc.Status {
+	yrpc.Printf("%s", *arg)
 	return nil
 }

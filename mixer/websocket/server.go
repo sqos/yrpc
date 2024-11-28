@@ -1,4 +1,5 @@
-// Copyright 2018 HenryLee. All Rights Reserved.
+// Copyright 2018-2023 HenryLee. All Rights Reserved.
+// Copyright 2024 sqos. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,18 +22,18 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/goutil"
 
-	"github.com/andeya/erpc/v7/mixer/websocket/jsonSubProto"
-	"github.com/andeya/erpc/v7/mixer/websocket/pbSubProto"
-	ws "github.com/andeya/erpc/v7/mixer/websocket/websocket"
+	"github.com/sqos/yrpc/mixer/websocket/jsonSubProto"
+	"github.com/sqos/yrpc/mixer/websocket/pbSubProto"
+	ws "github.com/sqos/yrpc/mixer/websocket/websocket"
 )
 
 // Server a websocket server
 type Server struct {
-	erpc.Peer
-	cfg       erpc.PeerConfig
+	yrpc.Peer
+	cfg       yrpc.PeerConfig
 	serveMux  *http.ServeMux
 	server    *http.Server
 	rootPath  string
@@ -42,8 +43,8 @@ type Server struct {
 }
 
 // NewServer creates a websocket server.
-func NewServer(rootPath string, cfg erpc.PeerConfig, globalLeftPlugin ...erpc.Plugin) *Server {
-	p := erpc.NewPeer(cfg, globalLeftPlugin...)
+func NewServer(rootPath string, cfg yrpc.PeerConfig, globalLeftPlugin ...yrpc.Plugin) *Server {
+	p := yrpc.NewPeer(cfg, globalLeftPlugin...)
 	serveMux := http.NewServeMux()
 	lisAddr := cfg.ListenAddr()
 	host, port, _ := net.SplitHostPort(lisAddr.String())
@@ -53,7 +54,7 @@ func NewServer(rootPath string, cfg erpc.PeerConfig, globalLeftPlugin ...erpc.Pl
 		} else {
 			port = "http"
 		}
-		lisAddr = erpc.NewFakeAddr(lisAddr.Network(), host, port)
+		lisAddr = yrpc.NewFakeAddr(lisAddr.Network(), host, port)
 	}
 	return &Server{
 		Peer:     p,
@@ -84,7 +85,7 @@ func (srv *Server) ListenAndServeProtobuf() error {
 // ListenAndServe always returns a non-nil error.
 //
 // If protoFunc is empty, JSON is used by default.
-func (srv *Server) ListenAndServe(protoFunc ...erpc.ProtoFunc) (err error) {
+func (srv *Server) ListenAndServe(protoFunc ...yrpc.ProtoFunc) (err error) {
 	network := srv.cfg.Network
 	switch network {
 	default:
@@ -92,14 +93,14 @@ func (srv *Server) ListenAndServe(protoFunc ...erpc.ProtoFunc) (err error) {
 	case "tcp", "tcp4", "tcp6":
 	}
 	srv.Handle(srv.rootPath, NewServeHandler(srv.Peer, srv.handshake, protoFunc...))
-	srv.lis, err = erpc.NewInheritedListener(srv.lisAddr, srv.Peer.TLSConfig())
+	srv.lis, err = yrpc.NewInheritedListener(srv.lisAddr, srv.Peer.TLSConfig())
 	if err != nil {
 		return
 	}
 	srv.lisAddr = srv.lis.Addr()
-	erpc.Printf("listen and serve (network:%s, addr:%s)", network, srv.lisAddr)
+	yrpc.Printf("listen and serve (network:%s, addr:%s)", network, srv.lisAddr)
 	for _, v := range srv.Peer.PluginContainer().GetAll() {
-		if p, ok := v.(erpc.PostListenPlugin); ok {
+		if p, ok := v.(yrpc.PostListenPlugin); ok {
 			p.PostListen(srv.lis.Addr())
 		}
 	}
@@ -133,17 +134,17 @@ func (srv *Server) HandleFunc(rootPath string, handler func(http.ResponseWriter,
 }
 
 // NewJSONServeHandler creates a websocket json handler.
-func NewJSONServeHandler(peer erpc.Peer, handshake func(*ws.Config, *http.Request) error) http.Handler {
+func NewJSONServeHandler(peer yrpc.Peer, handshake func(*ws.Config, *http.Request) error) http.Handler {
 	return NewServeHandler(peer, handshake, jsonSubProto.NewJSONSubProtoFunc())
 }
 
 // NewPbServeHandler creates a websocket protobuf handler.
-func NewPbServeHandler(peer erpc.Peer, handshake func(*ws.Config, *http.Request) error) http.Handler {
+func NewPbServeHandler(peer yrpc.Peer, handshake func(*ws.Config, *http.Request) error) http.Handler {
 	return NewServeHandler(peer, handshake, pbSubProto.NewPbSubProtoFunc())
 }
 
 // NewServeHandler creates a websocket handler.
-func NewServeHandler(peer erpc.Peer, handshake func(*ws.Config, *http.Request) error, protoFunc ...erpc.ProtoFunc) http.Handler {
+func NewServeHandler(peer yrpc.Peer, handshake func(*ws.Config, *http.Request) error, protoFunc ...yrpc.ProtoFunc) http.Handler {
 	w := &serverHandler{
 		peer:      peer,
 		Server:    new(ws.Server),
@@ -177,20 +178,20 @@ func NewServeHandler(peer erpc.Peer, handshake func(*ws.Config, *http.Request) e
 }
 
 type serverHandler struct {
-	peer      erpc.Peer
-	protoFunc erpc.ProtoFunc
+	peer      yrpc.Peer
+	protoFunc yrpc.ProtoFunc
 	*ws.Server
 }
 
 func (w *serverHandler) handler(conn *ws.Conn) {
 	sess, err := w.peer.ServeConn(conn, w.protoFunc)
 	if err != nil {
-		erpc.Errorf("serverHandler: %v", err)
+		yrpc.Errorf("serverHandler: %v", err)
 		return
 	}
 	if stat := w.postAccept(sess, conn); !stat.OK() {
 		if err := sess.Close(); err != nil {
-			erpc.Errorf("sess.Close(): %v", err)
+			yrpc.Errorf("sess.Close(): %v", err)
 		}
 		return
 	}
@@ -198,30 +199,30 @@ func (w *serverHandler) handler(conn *ws.Conn) {
 }
 
 var (
-	statInternalServerError = erpc.NewStatus(erpc.CodeInternalServerError, erpc.CodeText(erpc.CodeInternalServerError), "")
+	statInternalServerError = yrpc.NewStatus(yrpc.CodeInternalServerError, yrpc.CodeText(yrpc.CodeInternalServerError), "")
 )
 
 type (
 	// PreHandshake executes the PreWebsocketHandshakePlugins before websocket handshake,
 	PreWebsocketHandshakePlugin interface {
-		erpc.Plugin
-		PreHandshake(r *http.Request) *erpc.Status
+		yrpc.Plugin
+		PreHandshake(r *http.Request) *yrpc.Status
 	}
 	// PreHandshake executes the PostWebsocketAcceptPlugin after websocket accepting connection
 	PostWebsocketAcceptPlugin interface {
-		erpc.Plugin
-		PostAccept(sess erpc.Session, conn *ws.Conn) *erpc.Status
+		yrpc.Plugin
+		PostAccept(sess yrpc.Session, conn *ws.Conn) *yrpc.Status
 	}
 )
 
 // PreHandshake executes the PreWebsocketHandshakePlugins before websocket handshake,
 // you can still deal with http.Request in this stage.
-func (w *serverHandler) preHandshake(r *http.Request) (stat *erpc.Status) {
+func (w *serverHandler) preHandshake(r *http.Request) (stat *yrpc.Status) {
 	var pluginName string
 	p := w.peer.PluginContainer()
 	defer func() {
 		if p := recover(); p != nil {
-			erpc.Errorf("[PreWebsocketHandshakePlugin:%s] addr:%s, panic:%v\n%s", pluginName, r.RemoteAddr, p, goutil.PanicTrace(2))
+			yrpc.Errorf("[PreWebsocketHandshakePlugin:%s] addr:%s, panic:%v\n%s", pluginName, r.RemoteAddr, p, goutil.PanicTrace(2))
 			stat = statInternalServerError.Copy(p)
 		}
 	}()
@@ -229,7 +230,7 @@ func (w *serverHandler) preHandshake(r *http.Request) (stat *erpc.Status) {
 		if _plugin, ok := plugin.(PreWebsocketHandshakePlugin); ok {
 			pluginName = plugin.Name()
 			if stat = _plugin.PreHandshake(r); !stat.OK() {
-				erpc.Debugf("[PreWebsocketHandshakePlugin:%s] addr:%s, error:%s", pluginName, r.RemoteAddr, stat.String())
+				yrpc.Debugf("[PreWebsocketHandshakePlugin:%s] addr:%s, error:%s", pluginName, r.RemoteAddr, stat.String())
 				return stat
 			}
 		}
@@ -238,14 +239,14 @@ func (w *serverHandler) preHandshake(r *http.Request) (stat *erpc.Status) {
 }
 
 // PreHandshake executes the PostWebsocketAcceptPlugin after websocket accepting connection
-// it is similar to erpc.plugin.PostAcceptPlugin, but a websocket.Conn argument that you can
+// it is similar to yrpc.plugin.PostAcceptPlugin, but a websocket.Conn argument that you can
 // get http.Request interface, may be you need.
-func (w *serverHandler) postAccept(sess erpc.Session, conn *ws.Conn) (stat *erpc.Status) {
+func (w *serverHandler) postAccept(sess yrpc.Session, conn *ws.Conn) (stat *yrpc.Status) {
 	var pluginName string
 	p := w.peer.PluginContainer()
 	defer func() {
 		if p := recover(); p != nil {
-			erpc.Errorf("[PostWebsocketAcceptPlugin:%s] network:%s, addr:%s, panic:%v\n%s", pluginName, sess.RemoteAddr().Network(), sess.RemoteAddr().String(), p, goutil.PanicTrace(2))
+			yrpc.Errorf("[PostWebsocketAcceptPlugin:%s] network:%s, addr:%s, panic:%v\n%s", pluginName, sess.RemoteAddr().Network(), sess.RemoteAddr().String(), p, goutil.PanicTrace(2))
 			stat = statInternalServerError.Copy(p)
 		}
 	}()
@@ -253,7 +254,7 @@ func (w *serverHandler) postAccept(sess erpc.Session, conn *ws.Conn) (stat *erpc
 		if _plugin, ok := plugin.(PostWebsocketAcceptPlugin); ok {
 			pluginName = plugin.Name()
 			if stat = _plugin.PostAccept(sess, conn); !stat.OK() {
-				erpc.Debugf("[PostWebsocketAcceptPlugin:%s] network:%s, addr:%s, error:%s", pluginName, sess.RemoteAddr().Network(), sess.RemoteAddr().String(), stat.String())
+				yrpc.Debugf("[PostWebsocketAcceptPlugin:%s] network:%s, addr:%s, error:%s", pluginName, sess.RemoteAddr().Network(), sess.RemoteAddr().String(), stat.String())
 				return stat
 			}
 		}

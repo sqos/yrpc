@@ -4,10 +4,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/erpc/v7/xfer"
-	"github.com/andeya/erpc/v7/xfer/md5"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/yrpc/xfer"
+	"github.com/sqos/yrpc/xfer/md5"
+	"github.com/sqos/goutil"
 )
 
 func init() {
@@ -44,13 +44,13 @@ func TestCombined(t *testing.T) {
 		return
 	}
 	// Server
-	srv := erpc.NewPeer(erpc.PeerConfig{ListenPort: 9090})
+	srv := yrpc.NewPeer(yrpc.PeerConfig{ListenPort: 9090})
 	srv.RouteCall(new(Home))
 	go srv.ListenAndServe()
 	time.Sleep(1e9)
 
 	// Client
-	cli := erpc.NewPeer(erpc.PeerConfig{})
+	cli := yrpc.NewPeer(yrpc.PeerConfig{})
 	sess, stat := cli.Dial(":9090")
 	if !stat.OK() {
 		t.Fatal(stat)
@@ -62,7 +62,7 @@ func TestCombined(t *testing.T) {
 		},
 		&result,
 		// Use custom filter
-		erpc.WithXferPipe('m'),
+		yrpc.WithXferPipe('m'),
 	).Status()
 	if !stat.OK() {
 		t.Error(stat)
@@ -71,10 +71,10 @@ func TestCombined(t *testing.T) {
 }
 
 type Home struct {
-	erpc.CallCtx
+	yrpc.CallCtx
 }
 
-func (h *Home) Test(arg *map[string]interface{}) (map[string]interface{}, *erpc.Status) {
+func (h *Home) Test(arg *map[string]interface{}) (map[string]interface{}, *yrpc.Status) {
 	return map[string]interface{}{
 		"result": "your request is:" + (*arg)["bytes"].(string),
 	}, nil

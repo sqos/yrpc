@@ -1,6 +1,7 @@
 // Package proxy is a plugin for handling unknown calling or pushing.
 //
-// Copyright 2017 HenryLee. All Rights Reserved.
+// Copyright 2017-2023 HenryLee. All Rights Reserved.
+// Copyright 2024 sqos. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,12 +24,12 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/goutil"
 )
 
 // NewPlugin creates a proxy plugin for handling unknown calling and pushing.
-func NewPlugin(fn func(*Label) Forwarder) erpc.Plugin {
+func NewPlugin(fn func(*Label) Forwarder) yrpc.Plugin {
 	return &proxy{
 		callForwarder: func(label *Label) CallForwarder {
 			return fn(label)
@@ -40,12 +41,12 @@ func NewPlugin(fn func(*Label) Forwarder) erpc.Plugin {
 }
 
 // NewCallPlugin creates a proxy plugin for handling unknown calling.
-func NewCallPlugin(fn func(*Label) CallForwarder) erpc.Plugin {
+func NewCallPlugin(fn func(*Label) CallForwarder) yrpc.Plugin {
 	return &proxy{callForwarder: fn}
 }
 
 // NewPushPlugin creates a proxy plugin for handling unknown pushing.
-func NewPushPlugin(fn func(*Label) PushForwarder) erpc.Plugin {
+func NewPushPlugin(fn func(*Label) PushForwarder) yrpc.Plugin {
 	return &proxy{pushForwarder: fn}
 }
 
@@ -57,11 +58,11 @@ type (
 	}
 	// CallForwarder the object used to call
 	CallForwarder interface {
-		Call(uri string, arg interface{}, result interface{}, setting ...erpc.MessageSetting) erpc.CallCmd
+		Call(uri string, arg interface{}, result interface{}, setting ...yrpc.MessageSetting) yrpc.CallCmd
 	}
 	// PushForwarder the object used to push
 	PushForwarder interface {
-		Push(uri string, arg interface{}, setting ...erpc.MessageSetting) *erpc.Status
+		Push(uri string, arg interface{}, setting ...yrpc.MessageSetting) *yrpc.Status
 	}
 	// Label proxy label information
 	Label struct {
@@ -74,14 +75,14 @@ type (
 )
 
 var (
-	_ erpc.PostNewPeerPlugin = new(proxy)
+	_ yrpc.PostNewPeerPlugin = new(proxy)
 )
 
 func (p *proxy) Name() string {
 	return "proxy"
 }
 
-func (p *proxy) PostNewPeer(peer erpc.EarlyPeer) error {
+func (p *proxy) PostNewPeer(peer yrpc.EarlyPeer) error {
 	if p.callForwarder != nil {
 		peer.SetUnknownCall(p.call)
 	}
@@ -91,22 +92,22 @@ func (p *proxy) PostNewPeer(peer erpc.EarlyPeer) error {
 	return nil
 }
 
-func (p *proxy) call(ctx erpc.UnknownCallCtx) (interface{}, *erpc.Status) {
+func (p *proxy) call(ctx yrpc.UnknownCallCtx) (interface{}, *yrpc.Status) {
 	var (
 		label    Label
-		settings = make([]erpc.MessageSetting, 0, 16)
+		settings = make([]yrpc.MessageSetting, 0, 16)
 	)
 	label.SessionID = ctx.Session().ID()
 	ctx.VisitMeta(func(key, value []byte) {
-		settings = append(settings, erpc.WithAddMeta(string(key), string(value)))
+		settings = append(settings, yrpc.WithAddMeta(string(key), string(value)))
 	})
 	var (
 		result      []byte
-		realIPBytes = ctx.PeekMeta(erpc.MetaRealIP)
+		realIPBytes = ctx.PeekMeta(yrpc.MetaRealIP)
 	)
 	if len(realIPBytes) == 0 {
 		label.RealIP = ctx.IP()
-		settings = append(settings, erpc.WithAddMeta(erpc.MetaRealIP, label.RealIP))
+		settings = append(settings, yrpc.WithAddMeta(yrpc.MetaRealIP, label.RealIP))
 	} else {
 		label.RealIP = goutil.BytesToString(realIPBytes)
 	}
@@ -117,32 +118,32 @@ func (p *proxy) call(ctx erpc.UnknownCallCtx) (interface{}, *erpc.Status) {
 	})
 	stat := callcmd.Status()
 	if !stat.OK() && stat.Code() < 200 && stat.Code() > 99 {
-		stat.SetCode(erpc.CodeBadGateway)
-		stat.SetMsg(erpc.CodeText(erpc.CodeBadGateway))
+		stat.SetCode(yrpc.CodeBadGateway)
+		stat.SetMsg(yrpc.CodeText(yrpc.CodeBadGateway))
 	}
 	return result, stat
 }
 
-func (p *proxy) push(ctx erpc.UnknownPushCtx) *erpc.Status {
+func (p *proxy) push(ctx yrpc.UnknownPushCtx) *yrpc.Status {
 	var (
 		label    Label
-		settings = make([]erpc.MessageSetting, 0, 16)
+		settings = make([]yrpc.MessageSetting, 0, 16)
 	)
 	label.SessionID = ctx.Session().ID()
 	ctx.VisitMeta(func(key, value []byte) {
-		settings = append(settings, erpc.WithAddMeta(string(key), string(value)))
+		settings = append(settings, yrpc.WithAddMeta(string(key), string(value)))
 	})
-	if realIPBytes := ctx.PeekMeta(erpc.MetaRealIP); len(realIPBytes) == 0 {
+	if realIPBytes := ctx.PeekMeta(yrpc.MetaRealIP); len(realIPBytes) == 0 {
 		label.RealIP = ctx.IP()
-		settings = append(settings, erpc.WithAddMeta(erpc.MetaRealIP, label.RealIP))
+		settings = append(settings, yrpc.WithAddMeta(yrpc.MetaRealIP, label.RealIP))
 	} else {
 		label.RealIP = goutil.BytesToString(realIPBytes)
 	}
 	label.ServiceMethod = ctx.ServiceMethod()
 	stat := p.pushForwarder(&label).Push(label.ServiceMethod, ctx.InputBodyBytes(), settings...)
 	if !stat.OK() && stat.Code() < 200 && stat.Code() > 99 {
-		stat.SetCode(erpc.CodeBadGateway)
-		stat.SetMsg(erpc.CodeText(erpc.CodeBadGateway))
+		stat.SetCode(yrpc.CodeBadGateway)
+		stat.SetMsg(yrpc.CodeText(yrpc.CodeBadGateway))
 	}
 	return stat
 }

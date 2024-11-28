@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/goutil"
 )
 
 //go:generate go test -v -c -o "${GOPACKAGE}_server" $GOFILE
@@ -16,14 +16,14 @@ func TestServer(t *testing.T) {
 		return
 	}
 
-	defer erpc.FlushLogger()
-	srv := erpc.NewPeer(erpc.PeerConfig{
+	defer yrpc.FlushLogger()
+	srv := yrpc.NewPeer(yrpc.PeerConfig{
 		CountTime:  true,
 		ListenPort: 9090,
 		Network:    "unix",
-	}, &erpc.PluginImpl{
+	}, &yrpc.PluginImpl{
 		PluginName: "clean-listen-unix-file",
-		OnPreNewPeer: func(config *erpc.PeerConfig, _ *erpc.PluginContainer) error {
+		OnPreNewPeer: func(config *yrpc.PeerConfig, _ *yrpc.PluginContainer) error {
 			socketFile := config.ListenAddr().String()
 			if _, err := os.Stat(socketFile); err == nil {
 				if err := os.RemoveAll(socketFile); err != nil {
@@ -38,9 +38,9 @@ func TestServer(t *testing.T) {
 }
 
 type Echo struct {
-	erpc.CallCtx
+	yrpc.CallCtx
 }
 
-func (echo *Echo) Parrot(arg *string) (string, *erpc.Status) {
+func (echo *Echo) Parrot(arg *string) (string, *yrpc.Status) {
 	return *arg, nil
 }

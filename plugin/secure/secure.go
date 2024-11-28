@@ -1,6 +1,7 @@
 // Package secure encrypting/decrypting the message body.
 //
-// Copyright 2018 HenryLee. All Rights Reserved.
+// Copyright 2018-2023 HenryLee. All Rights Reserved.
+// Copyright 2024 sqos. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,9 +20,9 @@ import (
 	"crypto/aes"
 	"fmt"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/erpc/v7/utils"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/yrpc/utils"
+	"github.com/sqos/goutil"
 )
 
 const (
@@ -41,10 +42,10 @@ const (
 // NewPlugin creates a AES encryption/decryption plugin.
 // The cipherkey argument should be the AES key,
 // either 16, 24, or 32 bytes to select AES-128, AES-192, or AES-256.
-func NewPlugin(statCode int32, cipherkey string) erpc.Plugin {
+func NewPlugin(statCode int32, cipherkey string) yrpc.Plugin {
 	b := []byte(cipherkey)
 	if _, err := aes.NewCipher(b); err != nil {
-		erpc.Fatalf("secure: %v", err)
+		yrpc.Fatalf("secure: %v", err)
 	}
 	version := goutil.Md5([]byte(cipherkey))
 	return &securePlugin{
@@ -63,23 +64,23 @@ func NewPlugin(statCode int32, cipherkey string) erpc.Plugin {
 
 // EnforceSecure enforces the body of the encrypted reply message.
 // Note: requires that the secure plugin has been registered!
-func EnforceSecure(output erpc.Message) {
+func EnforceSecure(output yrpc.Message) {
 	output.Meta().Set(SECURE_META_KEY, "true")
 }
 
 // WithSecureMeta encrypts the body of the current message.
 // Note: requires that the secure plugin has been registered!
-func WithSecureMeta() erpc.MessageSetting {
-	return func(message erpc.Message) {
+func WithSecureMeta() yrpc.MessageSetting {
+	return func(message yrpc.Message) {
 		message.Meta().Set(SECURE_META_KEY, "true")
 	}
 }
 
 // WithAcceptSecureMeta requires the peer to encrypt the replying body.
 // Note: requires that the secure plugin has been registered!
-func WithAcceptSecureMeta(accept bool) erpc.MessageSetting {
+func WithAcceptSecureMeta(accept bool) yrpc.MessageSetting {
 	s := fmt.Sprintf("%v", accept)
-	return func(message erpc.Message) {
+	return func(message yrpc.Message) {
 		message.Meta().Set(ACCEPT_SECURE_META_KEY, s)
 	}
 }
@@ -105,15 +106,15 @@ type (
 )
 
 var (
-	_ erpc.PreWriteCallPlugin      = (*securePlugin)(nil)
-	_ erpc.PreWritePushPlugin      = (*securePlugin)(nil)
-	_ erpc.PreWriteReplyPlugin     = (*securePlugin)(nil)
-	_ erpc.PreReadCallBodyPlugin   = (*securePlugin)(nil)
-	_ erpc.PostReadCallBodyPlugin  = (*securePlugin)(nil)
-	_ erpc.PreReadReplyBodyPlugin  = (*securePlugin)(nil)
-	_ erpc.PostReadReplyBodyPlugin = (*securePlugin)(nil)
-	_ erpc.PreReadPushBodyPlugin   = (*securePlugin)(nil)
-	_ erpc.PostReadPushBodyPlugin  = (*securePlugin)(nil)
+	_ yrpc.PreWriteCallPlugin      = (*securePlugin)(nil)
+	_ yrpc.PreWritePushPlugin      = (*securePlugin)(nil)
+	_ yrpc.PreWriteReplyPlugin     = (*securePlugin)(nil)
+	_ yrpc.PreReadCallBodyPlugin   = (*securePlugin)(nil)
+	_ yrpc.PostReadCallBodyPlugin  = (*securePlugin)(nil)
+	_ yrpc.PreReadReplyBodyPlugin  = (*securePlugin)(nil)
+	_ yrpc.PostReadReplyBodyPlugin = (*securePlugin)(nil)
+	_ yrpc.PreReadPushBodyPlugin   = (*securePlugin)(nil)
+	_ yrpc.PostReadPushBodyPlugin  = (*securePlugin)(nil)
 )
 
 func (e *securePlugin) Name() string {
@@ -141,7 +142,7 @@ func isSecure(meta *utils.Args) bool {
 	return false
 }
 
-func (e *encryptPlugin) PreWriteCall(ctx erpc.WriteCtx) *erpc.Status {
+func (e *encryptPlugin) PreWriteCall(ctx yrpc.WriteCtx) *yrpc.Status {
 	if ctx.Status() != nil {
 		return nil
 	}
@@ -156,7 +157,7 @@ func (e *encryptPlugin) PreWriteCall(ctx erpc.WriteCtx) *erpc.Status {
 	// body: perform encryption operation to the body.
 	bodyBytes, err := ctx.Output().MarshalBody()
 	if err != nil {
-		return erpc.NewStatus(e.statCode, "marshal raw body error", err.Error())
+		return yrpc.NewStatus(e.statCode, "marshal raw body error", err.Error())
 	}
 	ciphertext := goutil.AESEncrypt(e.cipherkey, bodyBytes)
 	ctx.Output().SetBody(&Encrypt{
@@ -166,15 +167,15 @@ func (e *encryptPlugin) PreWriteCall(ctx erpc.WriteCtx) *erpc.Status {
 	return nil
 }
 
-func (e *encryptPlugin) PreWritePush(ctx erpc.WriteCtx) *erpc.Status {
+func (e *encryptPlugin) PreWritePush(ctx yrpc.WriteCtx) *yrpc.Status {
 	return e.PreWriteCall(ctx)
 }
 
-func (e *encryptPlugin) PreWriteReply(ctx erpc.WriteCtx) *erpc.Status {
+func (e *encryptPlugin) PreWriteReply(ctx yrpc.WriteCtx) *yrpc.Status {
 	return e.PreWriteCall(ctx)
 }
 
-func (e *decryptPlugin) PreReadCallBody(ctx erpc.ReadCtx) *erpc.Status {
+func (e *decryptPlugin) PreReadCallBody(ctx yrpc.ReadCtx) *yrpc.Status {
 	b := ctx.PeekMeta(ACCEPT_SECURE_META_KEY)
 	accept := goutil.BytesToString(b)
 	useDecrypt := isSecure(ctx.Input().Meta())
@@ -197,7 +198,7 @@ func (e *decryptPlugin) PreReadCallBody(ctx erpc.ReadCtx) *erpc.Status {
 	return nil
 }
 
-func (e *decryptPlugin) PostReadCallBody(ctx erpc.ReadCtx) *erpc.Status {
+func (e *decryptPlugin) PostReadCallBody(ctx yrpc.ReadCtx) *yrpc.Status {
 	rawbody, ok := ctx.Swap().Load(encrypt_rawbody)
 	if !ok {
 		return nil
@@ -210,7 +211,7 @@ func (e *decryptPlugin) PostReadCallBody(ctx erpc.ReadCtx) *erpc.Status {
 
 	if len(version) > 0 {
 		if version != e.version {
-			return erpc.NewStatus(
+			return yrpc.NewStatus(
 				e.statCode,
 				"decrypt ciphertext error",
 				fmt.Sprintf("inconsistent encryption version, get:%q, want:%q", obj.GetCipherversion(), e.version),
@@ -219,7 +220,7 @@ func (e *decryptPlugin) PostReadCallBody(ctx erpc.ReadCtx) *erpc.Status {
 		ciphertext := obj.GetCiphertext()
 		bodyBytes, err = goutil.AESDecrypt(e.cipherkey, goutil.StringToBytes(ciphertext))
 		if err != nil {
-			return erpc.NewStatus(e.statCode, "decrypt ciphertext error", err.Error())
+			return yrpc.NewStatus(e.statCode, "decrypt ciphertext error", err.Error())
 		}
 	}
 
@@ -227,23 +228,23 @@ func (e *decryptPlugin) PostReadCallBody(ctx erpc.ReadCtx) *erpc.Status {
 	ctx.Input().SetBody(rawbody)
 	err = ctx.Input().UnmarshalBody(bodyBytes)
 	if err != nil {
-		return erpc.NewStatus(e.statCode, "unmarshal raw body error", err.Error())
+		return yrpc.NewStatus(e.statCode, "unmarshal raw body error", err.Error())
 	}
 	return nil
 }
 
-func (e *decryptPlugin) PreReadReplyBody(ctx erpc.ReadCtx) *erpc.Status {
+func (e *decryptPlugin) PreReadReplyBody(ctx yrpc.ReadCtx) *yrpc.Status {
 	return e.PreReadCallBody(ctx)
 }
 
-func (e *decryptPlugin) PostReadReplyBody(ctx erpc.ReadCtx) *erpc.Status {
+func (e *decryptPlugin) PostReadReplyBody(ctx yrpc.ReadCtx) *yrpc.Status {
 	return e.PostReadCallBody(ctx)
 }
 
-func (e *decryptPlugin) PreReadPushBody(ctx erpc.ReadCtx) *erpc.Status {
+func (e *decryptPlugin) PreReadPushBody(ctx yrpc.ReadCtx) *yrpc.Status {
 	return e.PreReadCallBody(ctx)
 }
 
-func (e *decryptPlugin) PostReadPushBody(ctx erpc.ReadCtx) *erpc.Status {
+func (e *decryptPlugin) PostReadPushBody(ctx yrpc.ReadCtx) *yrpc.Status {
 	return e.PostReadCallBody(ctx)
 }

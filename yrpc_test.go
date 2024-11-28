@@ -1,18 +1,18 @@
-package erpc_test
+package yrpc_test
 
 import (
 	"testing"
 	"time"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/goutil"
 )
 
-func panic_call(erpc.CallCtx, *interface{}) (interface{}, *erpc.Status) {
+func panic_call(yrpc.CallCtx, *interface{}) (interface{}, *yrpc.Status) {
 	panic("panic_call")
 }
 
-func panic_push(erpc.PushCtx, *interface{}) *erpc.Status {
+func panic_push(yrpc.PushCtx, *interface{}) *yrpc.Status {
 	panic("panic_push")
 }
 
@@ -24,7 +24,7 @@ func TestPanic(t *testing.T) {
 		return
 	}
 
-	srv := erpc.NewPeer(erpc.PeerConfig{
+	srv := yrpc.NewPeer(yrpc.PeerConfig{
 		CountTime:  true,
 		ListenPort: 9090,
 	})
@@ -34,7 +34,7 @@ func TestPanic(t *testing.T) {
 
 	time.Sleep(2 * time.Second)
 
-	cli := erpc.NewPeer(erpc.PeerConfig{})
+	cli := yrpc.NewPeer(yrpc.PeerConfig{})
 	defer cli.Close()
 	sess, stat := cli.Dial(":9090")
 	if !stat.OK() {

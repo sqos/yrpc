@@ -4,7 +4,7 @@ package ignorecase
 import (
 	"strings"
 
-	"github.com/andeya/erpc/v7"
+	"github.com/sqos/yrpc"
 )
 
 // NewIgnoreCase Returns a ignoreCase plugin.
@@ -15,21 +15,21 @@ func NewIgnoreCase() *ignoreCase {
 type ignoreCase struct{}
 
 var (
-	_ erpc.PostReadCallHeaderPlugin = new(ignoreCase)
-	_ erpc.PostReadPushHeaderPlugin = new(ignoreCase)
+	_ yrpc.PostReadCallHeaderPlugin = new(ignoreCase)
+	_ yrpc.PostReadPushHeaderPlugin = new(ignoreCase)
 )
 
 func (i *ignoreCase) Name() string {
 	return "ignoreCase"
 }
 
-func (i *ignoreCase) PostReadCallHeader(ctx erpc.ReadCtx) *erpc.Status {
+func (i *ignoreCase) PostReadCallHeader(ctx yrpc.ReadCtx) *yrpc.Status {
 	// Dynamic transformation path is lowercase
 	ctx.ResetServiceMethod(strings.ToLower(ctx.ServiceMethod()))
 	return nil
 }
 
-func (i *ignoreCase) PostReadPushHeader(ctx erpc.ReadCtx) *erpc.Status {
+func (i *ignoreCase) PostReadPushHeader(ctx yrpc.ReadCtx) *yrpc.Status {
 	// Dynamic transformation path is lowercase
 	ctx.ResetServiceMethod(strings.ToLower(ctx.ServiceMethod()))
 	return nil

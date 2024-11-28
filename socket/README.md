@@ -32,7 +32,7 @@ A concise, powerful and high-performance connection socket.
 
 **Test Results**
 
-- erpc/socket
+- yrpc/socket
 
 | client concurrency | mean(ms) | median(ms) | max(ms) | min(ms) | throughput(TPS) |
 | ------------------ | -------- | ---------- | ------- | ------- | --------------- |
@@ -42,19 +42,19 @@ A concise, powerful and high-performance connection socket.
 | 2000               | 8        | 6          | 64      | 0       | 183351          |
 | 5000               | 21       | 18         | 651     | 0       | 133886          |
 
-**[test code](https://github.com/andeya/rpc-benchmark/tree/master/erpc)**
+**[test code](https://github.com/sqos/rpc-benchmark/tree/main/yrpc)**
 
-- Profile torch of erpc/socket
+- Profile torch of yrpc/socket
 
-![erpc_socket_profile_torch](https://github.com/andeya/erpc/raw/master/doc/erpc_socket_profile_torch.png)
+![yrpc_socket_profile_torch](https://github.com/sqos/yrpc/raw/main/doc/yrpc_socket_profile_torch.png)
 
-**[svg file](https://github.com/andeya/erpc/raw/master/doc/erpc_socket_profile_torch.svg)**
+**[svg file](https://github.com/sqos/yrpc/raw/main/doc/yrpc_socket_profile_torch.svg)**
 
-- Heap torch of erpc/socket
+- Heap torch of yrpc/socket
 
-![erpc_socket_heap_torch](https://github.com/andeya/erpc/raw/master/doc/erpc_socket_heap_torch.png)
+![yrpc_socket_heap_torch](https://github.com/sqos/yrpc/raw/main/doc/yrpc_socket_heap_torch.png)
 
-**[svg file](https://github.com/andeya/erpc/raw/master/doc/erpc_socket_heap_torch.svg)**
+**[svg file](https://github.com/sqos/yrpc/raw/main/doc/yrpc_socket_heap_torch.svg)**
 
 ## Example
 
@@ -67,8 +67,8 @@ import (
     "log"
     "net"
 
-    "github.com/andeya/erpc/v7/socket"
-    "github.com/andeya/erpc/v7/socket/example/pb"
+    "github.com/sqos/yrpc/socket"
+    "github.com/sqos/yrpc/socket/example/pb"
 )
 
 //go:generate go build $GOFILE
@@ -131,9 +131,9 @@ import (
     "log"
     "net"
 
-    "github.com/andeya/erpc/v7/codec"
-    "github.com/andeya/erpc/v7/socket"
-    "github.com/andeya/erpc/v7/socket/example/pb"
+    "github.com/sqos/yrpc/codec"
+    "github.com/sqos/yrpc/socket"
+    "github.com/sqos/yrpc/socket/example/pb"
 )
 
 //go:generate go build $GOFILE
@@ -178,7 +178,7 @@ func main() {
 }
 ```
 
-[More Examples](https://github.com/andeya/erpc/tree/master/socket/example)
+[More Examples](https://github.com/sqos/yrpc/tree/main/socket/example)
 
 ## Keyworks
 
@@ -194,7 +194,7 @@ func main() {
 The contents of every one message:
 
 ```go
-// in .../erpc/socket package
+// in .../yrpc/socket package
 type (
     // Message a socket message interface.
     Message interface {
@@ -281,7 +281,7 @@ type (
     NewBodyFunc func(Header) interface{}
 )
 
-// in .../erpc/xfer package
+// in .../yrpc/xfer package
 type (
     // XferPipe transfer filter pipe, handlers from outer-most to inner-most.
     // NOTE: the length can not be bigger than 255!

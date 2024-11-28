@@ -1,20 +1,28 @@
-# eRPC
+# yRPC
 
-[![tag](https://img.shields.io/github/tag/andeya/erpc.svg)](https://github.com/andeya/erpc/releases)
+[![tag](https://img.shields.io/github/tag/sqos/yrpc.svg)](https://github.com/sqos/yrpc/releases)
 ![Go Version](https://img.shields.io/badge/Go-%3E%3D%201.18-%23007d9c)
-[![GoDoc](https://godoc.org/github.com/andeya/erpc?status.svg)](https://pkg.go.dev/github.com/andeya/erpc/v7)
-![Build Status](https://github.com/andeya/erpc/actions/workflows/go-ci.yml/badge.svg)
-[![Go report](https://goreportcard.com/badge/github.com/andeya/erpc/v7)](https://goreportcard.com/report/github.com/andeya/erpc/v7)
-[![License](https://img.shields.io/github/license/andeya/erpc)](./LICENSE)
+[![GoDoc](https://godoc.org/github.com/sqos/yrpc?status.svg)](https://pkg.go.dev/github.com/sqos/yrpc)
+![Build Status](https://github.com/sqos/yrpc/actions/workflows/go-ci.yml/badge.svg)
+[![Go report](https://goreportcard.com/badge/github.com/sqos/yrpc)](https://goreportcard.com/report/github.com/sqos/yrpc)
+[![License](https://img.shields.io/github/license/sqos/yrpc)](./LICENSE)
 
-eRPC is an efficient, extensible and easy-to-use RPC framework.
+## Declaration
+
+yRPC is a fork of [eRPC](https://github.com/andeya/erpc) version 7.2.1. The version number of yRPC will start from v1.0.0. For using eRPC, please visit [the andeya's repository](https://github.com/andeya/erpc).
+
+**We would like to thank the eRPC author and all related contributors for their efforts.**
+
+## Introduction
+
+yRPC is an efficient, extensible and easy-to-use RPC framework.
 
 Suitable for RPC, Microservice, Peer-to-Peer, IM, Game and other fields.
 
-[简体中文](https://github.com/andeya/erpc/tree/master/README_ZH.md)
+[简体中文](https://github.com/sqos/yrpc/tree/main/README_ZH.md)
 
 
-![eRPC-Framework](https://github.com/andeya/erpc/raw/master/doc/erpc_module_diagram.png)
+![yRPC-Framework](https://github.com/sqos/yrpc/raw/main/doc/yrpc_module_diagram.png)
 
 
 ## Install
@@ -24,12 +32,12 @@ Suitable for RPC, Microservice, Peer-to-Peer, IM, Game and other fields.
 
 - install
 ```sh
-GO111MODULE=on go get -u -v -insecure github.com/andeya/erpc/v7
+GO111MODULE=on go get -u -v -insecure github.com/sqos/yrpc
 ```
 
 - import
 ```go
-import "github.com/andeya/erpc/v7"
+import "github.com/sqos/yrpc"
 ```
 
 ## Feature
@@ -96,62 +104,17 @@ import "github.com/andeya/erpc/v7"
 
 ## Benchmark
 
-**Self Test**
+- Profile torch of yrpc/socket
 
-- A server and a client process, running on the same machine
-- CPU:    Intel Xeon E312xx (Sandy Bridge) 16 cores 2.53GHz
-- Memory: 16G
-- OS:     Linux 2.6.32-696.16.1.el6.centos.plus.x86_64, CentOS 6.4
-- Go:     1.9.2
-- Message size: 581 bytes
-- Message codec: protobuf
-- Sent total 1000000 messages
+![yrpc_socket_profile_torch](https://github.com/sqos/yrpc/raw/main/doc/yrpc_socket_profile_torch.png)
 
-- erpc
+**[svg file](https://github.com/sqos/yrpc/raw/main/doc/yrpc_socket_profile_torch.svg)**
 
-| client concurrency | mean(ms) | median(ms) | max(ms) | min(ms) | throughput(TPS) |
-| ------------------ | -------- | ---------- | ------- | ------- | --------------- |
-| 100                | 1        | 0          | 16      | 0       | 75505           |
-| 500                | 9        | 11         | 97      | 0       | 52192           |
-| 1000               | 19       | 24         | 187     | 0       | 50040           |
-| 2000               | 39       | 54         | 409     | 0       | 42551           |
-| 5000               | 96       | 128        | 1148    | 0       | 46367           |
+- Heap torch of yrpc/socket
 
-- erpc/socket
+![yrpc_socket_heap_torch](https://github.com/sqos/yrpc/raw/main/doc/yrpc_socket_heap_torch.png)
 
-| client concurrency | mean(ms) | median(ms) | max(ms) | min(ms) | throughput(TPS) |
-| ------------------ | -------- | ---------- | ------- | ------- | --------------- |
-| 100                | 0        | 0          | 14      | 0       | 225682          |
-| 500                | 2        | 1          | 24      | 0       | 212630          |
-| 1000               | 4        | 3          | 51      | 0       | 180733          |
-| 2000               | 8        | 6          | 64      | 0       | 183351          |
-| 5000               | 21       | 18         | 651     | 0       | 133886          |
-
-**Comparison Test**
-
-<table>
-<tr><th>Environment</th><th>Throughputs</th><th>Mean Latency</th><th>P99 Latency</th></tr>
-<tr>
-<td width="10%"><img src="https://github.com/andeya/rpc-benchmark/raw/master/result/env.png"></td>
-<td width="30%"><img src="https://github.com/andeya/rpc-benchmark/raw/master/result/throughput.png"></td>
-<td width="30%"><img src="https://github.com/andeya/rpc-benchmark/raw/master/result/mean_latency.png"></td>
-<td width="30%"><img src="https://github.com/andeya/rpc-benchmark/raw/master/result/p99_latency.png"></td>
-</tr>
-</table>
-
-**[More Detail](https://github.com/andeya/rpc-benchmark)**
-
-- Profile torch of erpc/socket
-
-![erpc_socket_profile_torch](https://github.com/andeya/erpc/raw/master/doc/erpc_socket_profile_torch.png)
-
-**[svg file](https://github.com/andeya/erpc/raw/master/doc/erpc_socket_profile_torch.svg)**
-
-- Heap torch of erpc/socket
-
-![erpc_socket_heap_torch](https://github.com/andeya/erpc/raw/master/doc/erpc_socket_heap_torch.png)
-
-**[svg file](https://github.com/andeya/erpc/raw/master/doc/erpc_socket_heap_torch.svg)**
+**[svg file](https://github.com/sqos/yrpc/raw/main/doc/yrpc_socket_heap_torch.svg)**
 
 
 ## Example
@@ -165,21 +128,21 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/andeya/erpc/v7"
+	"github.com/sqos/yrpc"
 )
 
 func main() {
-	defer erpc.FlushLogger()
+	defer yrpc.FlushLogger()
 	// graceful
-	go erpc.GraceSignal()
+	go yrpc.GraceSignal()
 
 	// server peer
-	srv := erpc.NewPeer(erpc.PeerConfig{
+	srv := yrpc.NewPeer(yrpc.PeerConfig{
 		CountTime:   true,
 		ListenPort:  9090,
 		PrintDetail: true,
 	})
-	// srv.SetTLSConfig(erpc.GenerateTLSConfigForServer())
+	// srv.SetTLSConfig(yrpc.GenerateTLSConfigForServer())
 
 	// router
 	srv.RouteCall(new(Math))
@@ -188,7 +151,7 @@ func main() {
 	go func() {
 		for {
 			time.Sleep(time.Second * 5)
-			srv.RangeSession(func(sess erpc.Session) bool {
+			srv.RangeSession(func(sess yrpc.Session) bool {
 				sess.Push(
 					"/push/status",
 					fmt.Sprintf("this is a broadcast, server time: %v", time.Now()),
@@ -204,13 +167,13 @@ func main() {
 
 // Math handler
 type Math struct {
-	erpc.CallCtx
+	yrpc.CallCtx
 }
 
 // Add handles addition request
-func (m *Math) Add(arg *[]int) (int, *erpc.Status) {
+func (m *Math) Add(arg *[]int) (int, *yrpc.Status) {
 	// test meta
-	erpc.Infof("author: %s", m.PeekMeta("author"))
+	yrpc.Infof("author: %s", m.PeekMeta("author"))
 	// add
 	var r int
 	for _, a := range *arg {
@@ -229,13 +192,13 @@ package main
 import (
   "time"
 
-  "github.com/andeya/erpc/v7"
+  "github.com/sqos/yrpc"
 )
 
 func main() {
-  defer erpc.SetLoggerLevel("ERROR")()
+  defer yrpc.SetLoggerLevel("ERROR")()
 
-  cli := erpc.NewPeer(erpc.PeerConfig{})
+  cli := yrpc.NewPeer(yrpc.PeerConfig{})
   defer cli.Close()
   // cli.SetTLSConfig(&tls.Config{InsecureSkipVerify: true})
 
@@ -243,36 +206,36 @@ func main() {
 
   sess, stat := cli.Dial(":9090")
   if !stat.OK() {
-    erpc.Fatalf("%v", stat)
+    yrpc.Fatalf("%v", stat)
   }
 
   var result int
   stat = sess.Call("/math/add",
     []int{1, 2, 3, 4, 5},
     &result,
-    erpc.WithAddMeta("author", "andeya"),
+    yrpc.WithAddMeta("author", "andeya"),
   ).Status()
   if !stat.OK() {
-    erpc.Fatalf("%v", stat)
+    yrpc.Fatalf("%v", stat)
   }
-  erpc.Printf("result: %d", result)
-  erpc.Printf("Wait 10 seconds to receive the push...")
+  yrpc.Printf("result: %d", result)
+  yrpc.Printf("Wait 10 seconds to receive the push...")
   time.Sleep(time.Second * 10)
 }
 
 // Push push handler
 type Push struct {
-  erpc.PushCtx
+  yrpc.PushCtx
 }
 
 // Push handles '/push/status' message
-func (p *Push) Status(arg *string) *erpc.Status {
-  erpc.Printf("%s", *arg)
+func (p *Push) Status(arg *string) *yrpc.Status {
+  yrpc.Printf("%s", *arg)
   return nil
 }
 ```
 
-[More Examples](https://github.com/andeya/erpc/tree/master/examples)
+[More Examples](https://github.com/sqos/yrpc/tree/main/examples)
 
 ## Usage
 
@@ -285,7 +248,7 @@ func (p *Push) Status(arg *string) *erpc.Status {
 
 ```go
 // Start a server
-var peer1 = erpc.NewPeer(erpc.PeerConfig{
+var peer1 = yrpc.NewPeer(yrpc.PeerConfig{
 ListenPort: 9090, // for server role
 })
 peer1.Listen()
@@ -293,7 +256,7 @@ peer1.Listen()
 ...
 
 // Start a client
-var peer2 = erpc.NewPeer(erpc.PeerConfig{})
+var peer2 = yrpc.NewPeer(yrpc.PeerConfig{})
 var sess, err = peer2.Dial("127.0.0.1:8080")
 ```
 
@@ -301,9 +264,9 @@ var sess, err = peer2.Dial("127.0.0.1:8080")
 
 ```go
 type Aaa struct {
-    erpc.CallCtx
+    yrpc.CallCtx
 }
-func (x *Aaa) XxZz(arg *<T>) (<T>, *erpc.Status) {
+func (x *Aaa) XxZz(arg *<T>) (<T>, *yrpc.Status) {
     ...
     return r, nil
 }
@@ -335,7 +298,7 @@ peer.RouteCallFunc((*Aaa).XxZz)
     - `aa_bb` -> `/aa/bb`
     - `ABC_XYZ` -> `/abc/xyz`
     ```go
-    erpc.SetServiceMethodMapper(erpc.HTTPServiceMethodMapper)
+    yrpc.SetServiceMethodMapper(yrpc.HTTPServiceMethodMapper)
     ```
 
 - The mapping(RPCServiceMethodMapper) of struct(func) name to service methods:
@@ -348,13 +311,13 @@ peer.RouteCallFunc((*Aaa).XxZz)
     - `aa_bb` -> `aa.bb`
     - `ABC_XYZ` -> `ABC.XYZ`
     ```go
-    erpc.SetServiceMethodMapper(erpc.RPCServiceMethodMapper)
+    yrpc.SetServiceMethodMapper(yrpc.RPCServiceMethodMapper)
     ```
 
 ### Call-Function API template
 
 ```go
-func XxZz(ctx erpc.CallCtx, arg *<T>) (<T>, *erpc.Status) {
+func XxZz(ctx yrpc.CallCtx, arg *<T>) (<T>, *yrpc.Status) {
     ...
     return r, nil
 }
@@ -373,9 +336,9 @@ peer.RouteCallFunc(XxZz)
 
 ```go
 type Bbb struct {
-    erpc.PushCtx
+    yrpc.PushCtx
 }
-func (b *Bbb) YyZz(arg *<T>) *erpc.Status {
+func (b *Bbb) YyZz(arg *<T>) *yrpc.Status {
     ...
     return nil
 }
@@ -399,7 +362,7 @@ peer.RoutePushFunc((*Bbb).YyZz)
 
 ```go
 // YyZz register the handler
-func YyZz(ctx erpc.PushCtx, arg *<T>) *erpc.Status {
+func YyZz(ctx yrpc.PushCtx, arg *<T>) *yrpc.Status {
     ...
     return nil
 }
@@ -417,7 +380,7 @@ peer.RoutePushFunc(YyZz)
 ### Unknown-Call-Function API template
 
 ```go
-func XxxUnknownCall (ctx erpc.UnknownCallCtx) (interface{}, *erpc.Status) {
+func XxxUnknownCall (ctx yrpc.UnknownCallCtx) (interface{}, *yrpc.Status) {
     ...
     return r, nil
 }
@@ -433,7 +396,7 @@ peer.SetUnknownCall(XxxUnknownCall)
 ### Unknown-Push-Function API template
 
 ```go
-func XxxUnknownPush(ctx erpc.UnknownPushCtx) *erpc.Status {
+func XxxUnknownPush(ctx yrpc.UnknownPushCtx) *yrpc.Status {
     ...
     return nil
 }
@@ -457,21 +420,21 @@ func NewIgnoreCase() *ignoreCase {
 type ignoreCase struct{}
 
 var (
-    _ erpc.PostReadCallHeaderPlugin = new(ignoreCase)
-    _ erpc.PostReadPushHeaderPlugin = new(ignoreCase)
+    _ yrpc.PostReadCallHeaderPlugin = new(ignoreCase)
+    _ yrpc.PostReadPushHeaderPlugin = new(ignoreCase)
 )
 
 func (i *ignoreCase) Name() string {
     return "ignoreCase"
 }
 
-func (i *ignoreCase) PostReadCallHeader(ctx erpc.ReadCtx) *erpc.Status {
+func (i *ignoreCase) PostReadCallHeader(ctx yrpc.ReadCtx) *yrpc.Status {
     // Dynamic transformation path is lowercase
     ctx.UriObject().Path = strings.ToLower(ctx.UriObject().Path)
     return nil
 }
 
-func (i *ignoreCase) PostReadPushHeader(ctx erpc.ReadCtx) *erpc.Status {
+func (i *ignoreCase) PostReadPushHeader(ctx yrpc.ReadCtx) *yrpc.Status {
     // Dynamic transformation path is lowercase
     ctx.UriObject().Path = strings.ToLower(ctx.UriObject().Path)
     return nil
@@ -563,68 +526,53 @@ type PeerConfig struct {
 
 | package                                  | import                                   | description                  |
 | ---------------------------------------- | ---------------------------------------- | ---------------------------- |
-| [json](https://github.com/andeya/erpc/blob/master/codec/json_codec.go) | `"github.com/andeya/erpc/v7/codec"` | JSON codec(erpc own)     |
-| [protobuf](https://github.com/andeya/erpc/blob/master/codec/protobuf_codec.go) | `"github.com/andeya/erpc/v7/codec"` | Protobuf codec(erpc own) |
-| [thrift](https://github.com/andeya/erpc/blob/master/codec/thrift_codec.go) | `"github.com/andeya/erpc/v7/codec"` | Form(url encode) codec(erpc own)   |
-| [xml](https://github.com/andeya/erpc/blob/master/codec/xml_codec.go) | `"github.com/andeya/erpc/v7/codec"` | Form(url encode) codec(erpc own)   |
-| [plain](https://github.com/andeya/erpc/blob/master/codec/plain_codec.go) | `"github.com/andeya/erpc/v7/codec"` | Plain text codec(erpc own)   |
-| [form](https://github.com/andeya/erpc/blob/master/codec/form_codec.go) | `"github.com/andeya/erpc/v7/codec"` | Form(url encode) codec(erpc own)   |
+| [json](https://github.com/sqos/yrpc/blob/main/codec/json_codec.go) | `"github.com/sqos/yrpc/codec"` | JSON codec(yrpc own)     |
+| [protobuf](https://github.com/sqos/yrpc/blob/main/codec/protobuf_codec.go) | `"github.com/sqos/yrpc/codec"` | Protobuf codec(yrpc own) |
+| [thrift](https://github.com/sqos/yrpc/blob/main/codec/thrift_codec.go) | `"github.com/sqos/yrpc/codec"` | Form(url encode) codec(yrpc own)   |
+| [xml](https://github.com/sqos/yrpc/blob/main/codec/xml_codec.go) | `"github.com/sqos/yrpc/codec"` | Form(url encode) codec(yrpc own)   |
+| [plain](https://github.com/sqos/yrpc/blob/main/codec/plain_codec.go) | `"github.com/sqos/yrpc/codec"` | Plain text codec(yrpc own)   |
+| [form](https://github.com/sqos/yrpc/blob/main/codec/form_codec.go) | `"github.com/sqos/yrpc/codec"` | Form(url encode) codec(yrpc own)   |
 
 ### Plugin
 
 | package                                  | import                                   | description                              |
 | ---------------------------------------- | ---------------------------------------- | ---------------------------------------- |
-| [auth](https://github.com/andeya/erpc/tree/master/plugin/auth) | `"github.com/andeya/erpc/v7/plugin/auth"` | An auth plugin for verifying peer at the first time |
-| [binder](https://github.com/andeya/erpc/tree/master/plugin/binder) | `"github.com/andeya/erpc/v7/plugin/binder"` | Parameter Binding Verification for Struct Handler |
-| [heartbeat](https://github.com/andeya/erpc/tree/master/plugin/heartbeat) | `"github.com/andeya/erpc/v7/plugin/heartbeat"` | A generic timing heartbeat plugin        |
-| [proxy](https://github.com/andeya/erpc/tree/master/plugin/proxy) | `"github.com/andeya/erpc/v7/plugin/proxy"` | A proxy plugin for handling unknown calling or pushing |
-[secure](https://github.com/andeya/erpc/tree/master/plugin/secure)|`"github.com/andeya/erpc/v7/plugin/secure"` | Encrypting/decrypting the message body
-[overloader](https://github.com/andeya/erpc/tree/master/plugin/overloader)|`"github.com/andeya/erpc/v7/plugin/overloader"` | A plugin to protect erpc from overload
+| [auth](https://github.com/sqos/yrpc/tree/main/plugin/auth) | `"github.com/sqos/yrpc/plugin/auth"` | An auth plugin for verifying peer at the first time |
+| [binder](https://github.com/sqos/yrpc/tree/main/plugin/binder) | `"github.com/sqos/yrpc/plugin/binder"` | Parameter Binding Verification for Struct Handler |
+| [heartbeat](https://github.com/sqos/yrpc/tree/main/plugin/heartbeat) | `"github.com/sqos/yrpc/plugin/heartbeat"` | A generic timing heartbeat plugin        |
+| [proxy](https://github.com/sqos/yrpc/tree/main/plugin/proxy) | `"github.com/sqos/yrpc/plugin/proxy"` | A proxy plugin for handling unknown calling or pushing |
+[secure](https://github.com/sqos/yrpc/tree/main/plugin/secure)|`"github.com/sqos/yrpc/plugin/secure"` | Encrypting/decrypting the message body
+[overloader](https://github.com/sqos/yrpc/tree/main/plugin/overloader)|`"github.com/sqos/yrpc/plugin/overloader"` | A plugin to protect yrpc from overload
 
 ### Protocol
 
 | package                                  | import                                   | description                              |
 | ---------------------------------------- | ---------------------------------------- | ---------------------------------------- |
-| [rawproto](https://github.com/andeya/erpc/tree/master/proto/rawproto) | `"github.com/andeya/erpc/v7/proto/rawproto` | A fast socket communication protocol(erpc default protocol) |
-| [jsonproto](https://github.com/andeya/erpc/tree/master/proto/jsonproto) | `"github.com/andeya/erpc/v7/proto/jsonproto"` | A JSON socket communication protocol     |
-| [pbproto](https://github.com/andeya/erpc/tree/master/proto/pbproto) | `"github.com/andeya/erpc/v7/proto/pbproto"` | A Protobuf socket communication protocol     |
-| [thriftproto](https://github.com/andeya/erpc/tree/master/proto/thriftproto) | `"github.com/andeya/erpc/v7/proto/thriftproto"` | A Thrift communication protocol     |
-| [httproto](https://github.com/andeya/erpc/tree/master/proto/httproto) | `"github.com/andeya/erpc/v7/proto/httproto"` | A HTTP style socket communication protocol     |
+| [rawproto](https://github.com/sqos/yrpc/tree/main/proto/rawproto) | `"github.com/sqos/yrpc/proto/rawproto` | A fast socket communication protocol(yrpc default protocol) |
+| [jsonproto](https://github.com/sqos/yrpc/tree/main/proto/jsonproto) | `"github.com/sqos/yrpc/proto/jsonproto"` | A JSON socket communication protocol     |
+| [pbproto](https://github.com/sqos/yrpc/tree/main/proto/pbproto) | `"github.com/sqos/yrpc/proto/pbproto"` | A Protobuf socket communication protocol     |
+| [thriftproto](https://github.com/sqos/yrpc/tree/main/proto/thriftproto) | `"github.com/sqos/yrpc/proto/thriftproto"` | A Thrift communication protocol     |
+| [httproto](https://github.com/sqos/yrpc/tree/main/proto/httproto) | `"github.com/sqos/yrpc/proto/httproto"` | A HTTP style socket communication protocol     |
 
 ### Transfer-Filter
 
 | package                                  | import                                   | description                              |
 | ---------------------------------------- | ---------------------------------------- | ---------------------------------------- |
-| [gzip](https://github.com/andeya/erpc/tree/master/xfer/gzip) | `"github.com/andeya/erpc/v7/xfer/gzip"` | Gzip(erpc own)                       |
-| [md5](https://github.com/andeya/erpc/tree/master/xfer/md5) | `"github.com/andeya/erpc/v7/xfer/md5"` | Provides a integrity check transfer filter |
+| [gzip](https://github.com/sqos/yrpc/tree/main/xfer/gzip) | `"github.com/sqos/yrpc/xfer/gzip"` | Gzip(yrpc own)                       |
+| [md5](https://github.com/sqos/yrpc/tree/main/xfer/md5) | `"github.com/sqos/yrpc/xfer/md5"` | Provides a integrity check transfer filter |
 
 ### Mixer
 
 | package                                  | import                                   | description                              |
 | ---------------------------------------- | ---------------------------------------- | ---------------------------------------- |
-| [multiclient](https://github.com/andeya/erpc/tree/master/mixer/multiclient) | `"github.com/andeya/erpc/v7/mixer/multiclient"` | Higher throughput client connection pool when transferring large messages (such as downloading files) |
-| [websocket](https://github.com/andeya/erpc/tree/master/mixer/websocket) | `"github.com/andeya/erpc/v7/mixer/websocket"` | Makes the eRPC framework compatible with websocket protocol as specified in RFC 6455 |
-| [evio](https://github.com/andeya/erpc/tree/master/mixer/evio) | `"github.com/andeya/erpc/v7/mixer/evio"` | A fast event-loop networking framework that uses the erpc API layer |
-| [html](https://github.com/xiaoenai/tp-micro/tree/master/helper/mod-html) | `html "github.com/xiaoenai/tp-micro/helper/mod-html"` | HTML render for http client |
+| [multiclient](https://github.com/sqos/yrpc/tree/main/mixer/multiclient) | `"github.com/sqos/yrpc/mixer/multiclient"` | Higher throughput client connection pool when transferring large messages (such as downloading files) |
+| [websocket](https://github.com/sqos/yrpc/tree/main/mixer/websocket) | `"github.com/sqos/yrpc/mixer/websocket"` | Makes the yRPC framework compatible with websocket protocol as specified in RFC 6455 |
+| [evio](https://github.com/sqos/yrpc/tree/main/mixer/evio) | `"github.com/sqos/yrpc/mixer/evio"` | A fast event-loop networking framework that uses the yrpc API layer |
 
-## Projects based on eRPC
-
-| project                                  | description                              |
-| ---------------------------------------- | ---------------------------------------- |
-| [TP-Micro](https://github.com/xiaoenai/tp-micro) | TP-Micro is a simple, powerful micro service framework based on eRPC |
-| [Pholcus](https://github.com/andeya/pholcus) | Pholcus is a distributed, high concurrency and powerful web crawler software |
+## Projects based on yRPC
 
 ## Business Users
 
-<a href="http://www.xiaoenai.com"><img src="https://raw.githubusercontent.com/andeya/imgs-repo/master/xiaoenai.png" height="50" alt="深圳市梦之舵信息技术有限公司"/></a>
-&nbsp;&nbsp;
-<a href="https://tech.pingan.com/index.html"><img src="http://pa-tech.hirede.com/templates/pa-tech/Images/logo.png" height="50" alt="平安科技"/></a>
-<br/>
-<a href="http://www.fun.tv"><img src="http://static.funshion.com/open/static/img/logo.gif" height="70" alt="北京风行在线技术有限公司"/></a>
-&nbsp;&nbsp;
-<a href="http://www.kejishidai.cn"><img src="http://simg.ktvms.com/picture/logo.png" height="70" alt="北京可即时代网络公司"/></a>
-<a href="https://www.kuaishou.com/"><img src="https://inews.gtimg.com/newsapp_bt/0/4400789257/1000" height="70" alt="快手短视频平台"/></a>
-
 ## License
 
-eRPC is under Apache v2 License. See the [LICENSE](https://github.com/andeya/erpc/raw/master/LICENSE) file for the full license text
+yRPC is under Apache v2 License. See the [LICENSE](https://github.com/sqos/yrpc/raw/main/LICENSE) file for the full license text

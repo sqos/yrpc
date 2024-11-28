@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/erpc/v7/plugin/auth"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/yrpc/plugin/auth"
+	"github.com/sqos/goutil"
 )
 
 //go:generate go test -v -c -o "${GOPACKAGE}" $GOFILE
@@ -18,8 +18,8 @@ func TestAuth(t *testing.T) {
 	}
 
 	// Server
-	srv := erpc.NewPeer(
-		erpc.PeerConfig{ListenPort: 9090, CountTime: true},
+	srv := yrpc.NewPeer(
+		yrpc.PeerConfig{ListenPort: 9090, CountTime: true},
 		authChecker,
 	)
 	srv.RouteCall(new(Home))
@@ -27,8 +27,8 @@ func TestAuth(t *testing.T) {
 	time.Sleep(1e9)
 
 	// Client
-	cli := erpc.NewPeer(
-		erpc.PeerConfig{CountTime: true},
+	cli := yrpc.NewPeer(
+		yrpc.PeerConfig{CountTime: true},
 		authBearer,
 	)
 	sess, stat := cli.Dial(":9090")
@@ -41,7 +41,7 @@ func TestAuth(t *testing.T) {
 			"author": "andeya",
 		},
 		&result,
-		erpc.WithAddMeta("peer_id", "110"),
+		yrpc.WithAddMeta("peer_id", "110"),
 	).Status()
 	if !stat.OK() {
 		t.Error(stat)
@@ -53,39 +53,39 @@ func TestAuth(t *testing.T) {
 const clientAuthInfo = "client-auth-info-12345"
 
 var authBearer = auth.NewBearerPlugin(
-	func(sess auth.Session, fn auth.SendOnce) (stat *erpc.Status) {
+	func(sess auth.Session, fn auth.SendOnce) (stat *yrpc.Status) {
 		var ret string
 		stat = fn(clientAuthInfo, &ret)
 		if !stat.OK() {
 			return
 		}
-		erpc.Infof("auth info: %s, result: %s", clientAuthInfo, ret)
+		yrpc.Infof("auth info: %s, result: %s", clientAuthInfo, ret)
 		return
 	},
-	erpc.WithBodyCodec('s'),
+	yrpc.WithBodyCodec('s'),
 )
 
 var authChecker = auth.NewCheckerPlugin(
-	func(sess auth.Session, fn auth.RecvOnce) (ret interface{}, stat *erpc.Status) {
+	func(sess auth.Session, fn auth.RecvOnce) (ret interface{}, stat *yrpc.Status) {
 		var authInfo string
 		stat = fn(&authInfo)
 		if !stat.OK() {
 			return
 		}
-		erpc.Infof("auth info: %v", authInfo)
+		yrpc.Infof("auth info: %v", authInfo)
 		if clientAuthInfo != authInfo {
-			return nil, erpc.NewStatus(403, "auth fail", "auth fail detail")
+			return nil, yrpc.NewStatus(403, "auth fail", "auth fail detail")
 		}
 		return "pass", nil
 	},
-	erpc.WithBodyCodec('s'),
+	yrpc.WithBodyCodec('s'),
 )
 
 type Home struct {
-	erpc.CallCtx
+	yrpc.CallCtx
 }
 
-func (h *Home) Test(arg *map[string]string) (map[string]interface{}, *erpc.Status) {
+func (h *Home) Test(arg *map[string]string) (map[string]interface{}, *yrpc.Status) {
 	return map[string]interface{}{
 		"arg": *arg,
 	}, nil

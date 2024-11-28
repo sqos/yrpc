@@ -6,26 +6,26 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andeya/goutil"
-	"github.com/andeya/goutil/httpbody"
+	"github.com/sqos/goutil"
+	"github.com/sqos/goutil/httpbody"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/erpc/v7/proto/httproto"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/yrpc/proto/httproto"
 )
 
 type Home struct {
-	erpc.CallCtx
+	yrpc.CallCtx
 }
 
-func (h *Home) Test(arg *map[string]string) (map[string]interface{}, *erpc.Status) {
-	erpc.Infof("peer_id: %s", h.PeekMeta("peer_id"))
+func (h *Home) Test(arg *map[string]string) (map[string]interface{}, *yrpc.Status) {
+	yrpc.Infof("peer_id: %s", h.PeekMeta("peer_id"))
 	return map[string]interface{}{
 		"arg": *arg,
 	}, nil
 }
 
-func (h *Home) TestError(arg *map[string]string) (map[string]interface{}, *erpc.Status) {
-	return nil, erpc.NewStatus(1, "test error", "this is test:"+string(h.PeekMeta("peer_id")))
+func (h *Home) TestError(arg *map[string]string) (map[string]interface{}, *yrpc.Status) {
+	return nil, yrpc.NewStatus(1, "test error", "this is test:"+string(h.PeekMeta("peer_id")))
 }
 
 //go:generate go test -v -c -o "${GOPACKAGE}" $GOFILE
@@ -36,12 +36,12 @@ func TestHTTProto(t *testing.T) {
 		return
 	}
 	// Server
-	srv := erpc.NewPeer(erpc.PeerConfig{ListenPort: 9090})
+	srv := yrpc.NewPeer(yrpc.PeerConfig{ListenPort: 9090})
 	srv.RouteCall(new(Home))
 	go srv.ListenAndServe(httproto.NewHTTProtoFunc(true))
 	time.Sleep(1e9)
 
-	cli := erpc.NewPeer(erpc.PeerConfig{})
+	cli := yrpc.NewPeer(yrpc.PeerConfig{})
 	sess, stat := cli.Dial(":9090", httproto.NewHTTProtoFunc())
 	if !stat.OK() {
 		t.Fatal(stat)
@@ -61,7 +61,7 @@ func TestHTTProto(t *testing.T) {
 		if !stat.OK() {
 			t.Fatal(stat)
 		}
-		t.Logf("erpc client response: %v", result)
+		t.Logf("yrpc client response: %v", result)
 
 		// HTTP Client
 		contentType, body, _ := httpbody.NewJSONBody(arg)
@@ -85,7 +85,7 @@ func TestHTTProto(t *testing.T) {
 		if stat.OK() {
 			t.Fatal("test_error expect error")
 		}
-		t.Logf("erpc client response: %v, %v", stat, result)
+		t.Logf("yrpc client response: %v, %v", stat, result)
 
 		contentType, body, _ := httpbody.NewJSONBody(arg)
 		resp, err := http.Post(testErrURL, contentType, body)

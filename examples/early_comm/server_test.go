@@ -3,8 +3,8 @@ package early_comm
 import (
 	"testing"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/goutil"
 )
 
 //go:generate go test -v -c -o "${GOPACKAGE}_server" $GOFILE
@@ -15,9 +15,9 @@ func TestServer(t *testing.T) {
 		return
 	}
 
-	defer erpc.FlushLogger()
-	srv := erpc.NewPeer(
-		erpc.PeerConfig{
+	defer yrpc.FlushLogger()
+	srv := yrpc.NewPeer(
+		yrpc.PeerConfig{
 			PrintDetail: false,
 			ListenPort:  9090,
 		},
@@ -32,9 +32,9 @@ func (e *earlyResult) Name() string {
 	return "early_result"
 }
 
-func (e *earlyResult) PostAccept(sess erpc.PreSession) *erpc.Status {
+func (e *earlyResult) PostAccept(sess yrpc.PreSession) *yrpc.Status {
 	var rigthServiceMethod bool
-	input := sess.PreReceive(func(header erpc.Header) interface{} {
+	input := sess.PreReceive(func(header yrpc.Header) interface{} {
 		if header.ServiceMethod() == "/early/ping" {
 			rigthServiceMethod = true
 			return new(map[string]string)
@@ -48,18 +48,18 @@ func (e *earlyResult) PostAccept(sess erpc.PreSession) *erpc.Status {
 
 	var result string
 	if !rigthServiceMethod {
-		stat = erpc.NewStatus(10005, "unexpected request", "")
+		stat = yrpc.NewStatus(10005, "unexpected request", "")
 	} else {
 		body := *input.Body().(*map[string]string)
 		if body["author"] != "andeya" {
-			stat = erpc.NewStatus(10005, "incorrect author", body["author"])
+			stat = yrpc.NewStatus(10005, "incorrect author", body["author"])
 		} else {
 			stat = nil
 			result = "OK"
 		}
 	}
 	return sess.PreSend(
-		erpc.TypeReply,
+		yrpc.TypeReply,
 		"/early/pong",
 		result,
 		stat,

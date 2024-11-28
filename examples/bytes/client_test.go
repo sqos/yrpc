@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/goutil"
 )
 
 //go:generate go test -v -c -o "${GOPACKAGE}_client" $GOFILE
@@ -16,10 +16,10 @@ func TestClient(t *testing.T) {
 		return
 	}
 
-	defer erpc.FlushLogger()
-	go erpc.GraceSignal()
-	erpc.SetShutdown(time.Second*20, nil, nil)
-	var peer = erpc.NewPeer(erpc.PeerConfig{
+	defer yrpc.FlushLogger()
+	go yrpc.GraceSignal()
+	yrpc.SetShutdown(time.Second*20, nil, nil)
+	var peer = yrpc.NewPeer(yrpc.PeerConfig{
 		SlowCometDuration: time.Millisecond * 500,
 		PrintDetail:       true,
 	})
@@ -28,7 +28,7 @@ func TestClient(t *testing.T) {
 
 	var sess, stat = peer.Dial("127.0.0.1:9090")
 	if !stat.OK() {
-		erpc.Fatalf("%v", stat)
+		yrpc.Fatalf("%v", stat)
 	}
 	var result []byte
 	for {
@@ -36,38 +36,38 @@ func TestClient(t *testing.T) {
 			"/group/home/test",
 			[]byte("call text"),
 			&result,
-			erpc.WithAddMeta("peer_id", "call-1"),
+			yrpc.WithAddMeta("peer_id", "call-1"),
 		).Status(); !stat.OK() {
-			erpc.Errorf("call error: %v", stat)
+			yrpc.Errorf("call error: %v", stat)
 			time.Sleep(time.Second * 2)
 		} else {
 			break
 		}
 	}
-	erpc.Infof("test result: %s", result)
+	yrpc.Infof("test result: %s", result)
 
 	stat = sess.Call(
 		"/group/home/test_unknown",
 		[]byte("unknown call text"),
 		&result,
-		erpc.WithAddMeta("peer_id", "call-2"),
+		yrpc.WithAddMeta("peer_id", "call-2"),
 	).Status()
-	if erpc.IsConnError(stat) {
-		erpc.Fatalf("has conn error: %v", stat)
+	if yrpc.IsConnError(stat) {
+		yrpc.Fatalf("has conn error: %v", stat)
 	}
 	if !stat.OK() {
-		erpc.Fatalf("call error: %v", stat)
+		yrpc.Fatalf("call error: %v", stat)
 	}
-	erpc.Infof("test_unknown: %s", result)
+	yrpc.Infof("test_unknown: %s", result)
 }
 
 // Push controller
 type Push struct {
-	erpc.PushCtx
+	yrpc.PushCtx
 }
 
 // Test handler
-func (p *Push) Test(arg *[]byte) *erpc.Status {
-	erpc.Infof("receive push(%s):\narg: %s\n", p.IP(), *arg)
+func (p *Push) Test(arg *[]byte) *yrpc.Status {
+	yrpc.Infof("receive push(%s):\narg: %s\n", p.IP(), *arg)
 	return nil
 }

@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/erpc/v7/plugin/secure"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/yrpc/plugin/secure"
+	"github.com/sqos/goutil"
 )
 
 //go:generate go test -v -c -o "${GOPACKAGE}" $GOFILE
@@ -21,17 +21,17 @@ type Result struct {
 	C int
 }
 
-type math struct{ erpc.CallCtx }
+type math struct{ yrpc.CallCtx }
 
-func (m *math) Add(arg *Arg) (*Result, *erpc.Status) {
+func (m *math) Add(arg *Arg) (*Result, *yrpc.Status) {
 	// enforces the body of the encrypted reply message.
 	// secure.EnforceSecure(m.Output())
 	return &Result{C: arg.A + arg.B}, nil
 }
 
-func newSession(t *testing.T, port uint16) erpc.Session {
+func newSession(t *testing.T, port uint16) yrpc.Session {
 	p := secure.NewPlugin(100001, "cipherkey1234567")
-	srv := erpc.NewPeer(erpc.PeerConfig{
+	srv := yrpc.NewPeer(yrpc.PeerConfig{
 		ListenPort:  port,
 		PrintDetail: true,
 	})
@@ -39,7 +39,7 @@ func newSession(t *testing.T, port uint16) erpc.Session {
 	go srv.ListenAndServe()
 	time.Sleep(time.Second)
 
-	cli := erpc.NewPeer(erpc.PeerConfig{
+	cli := yrpc.NewPeer(yrpc.PeerConfig{
 		PrintDetail: true,
 	}, p)
 	sess, stat := cli.Dial(":" + strconv.Itoa(int(port)))

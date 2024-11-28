@@ -1,4 +1,4 @@
-package erpc
+package yrpc
 
 import "net"
 

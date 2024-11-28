@@ -5,9 +5,9 @@ import (
 	"net"
 	"testing"
 
-	"github.com/andeya/erpc/v7/socket"
-	"github.com/andeya/erpc/v7/socket/example/pb"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc/socket"
+	"github.com/sqos/yrpc/socket/example/pb"
+	"github.com/sqos/goutil"
 )
 
 //go:generate go test -v -c -o "${GOPACKAGE}_server" $GOFILE

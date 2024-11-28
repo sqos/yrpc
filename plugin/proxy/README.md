@@ -10,14 +10,14 @@ package main
 import (
 	"time"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/erpc/v7/plugin/proxy"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/yrpc/plugin/proxy"
 )
 
 func main() {
-	defer erpc.FlushLogger()
-	srv := erpc.NewPeer(
-		erpc.PeerConfig{
+	defer yrpc.FlushLogger()
+	srv := yrpc.NewPeer(
+		yrpc.PeerConfig{
 			ListenPort: 8080,
 		},
 		newUnknownProxy(),
@@ -25,14 +25,14 @@ func main() {
 	srv.ListenAndServe()
 }
 
-func newUnknownProxy() erpc.Plugin {
-	cli := erpc.NewPeer(erpc.PeerConfig{RedialTimes: 3})
-	var sess erpc.Session
-	var stat *erpc.Status
+func newUnknownProxy() yrpc.Plugin {
+	cli := yrpc.NewPeer(yrpc.PeerConfig{RedialTimes: 3})
+	var sess yrpc.Session
+	var stat *yrpc.Status
 DIAL:
 	sess, stat = cli.Dial(":9090")
 	if !stat.OK() {
-		erpc.Warnf("%v", stat)
+		yrpc.Warnf("%v", stat)
 		time.Sleep(time.Second * 3)
 		goto DIAL
 	}

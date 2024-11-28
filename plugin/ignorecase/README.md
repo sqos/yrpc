@@ -4,7 +4,7 @@ Dynamically ignoring the case of path
 
 ### Usage
 
-`import "github.com/andeya/erpc/v7/plugin/ignorecase"`
+`import "github.com/sqos/yrpc/plugin/ignorecase"`
 
 #### Test
 
@@ -15,15 +15,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/erpc/v7/plugin/ignorecase"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/yrpc/plugin/ignorecase"
 )
 
 type Home struct {
-	erpc.CallCtx
+	yrpc.CallCtx
 }
 
-func (h *Home) Test(arg *map[string]string) (map[string]interface{}, *erpc.Status) {
+func (h *Home) Test(arg *map[string]string) (map[string]interface{}, *yrpc.Status) {
 	h.Session().Push("/push/test", map[string]string{
 		"your_id": string(h.PeekMeta("peer_id")),
 	})
@@ -34,13 +34,13 @@ func (h *Home) Test(arg *map[string]string) (map[string]interface{}, *erpc.Statu
 
 func TestIngoreCase(t *testing.T) {
 	// Server
-	srv := erpc.NewPeer(erpc.PeerConfig{ListenPort: 9090}, ignorecase.NewIgnoreCase())
+	srv := yrpc.NewPeer(yrpc.PeerConfig{ListenPort: 9090}, ignorecase.NewIgnoreCase())
 	srv.RouteCall(new(Home))
 	go srv.ListenAndServe()
 	time.Sleep(1e9)
 
 	// Client
-	cli := erpc.NewPeer(erpc.PeerConfig{}, ignorecase.NewIgnoreCase())
+	cli := yrpc.NewPeer(yrpc.PeerConfig{}, ignorecase.NewIgnoreCase())
 	cli.RoutePush(new(Push))
 	sess, stat := cli.Dial(":9090")
 	if !stat.OK() {
@@ -52,7 +52,7 @@ func TestIngoreCase(t *testing.T) {
 			"author": "andeya",
 		},
 		&result,
-		erpc.WithAddMeta("peer_id", "110"),
+		yrpc.WithAddMeta("peer_id", "110"),
 	).Status()
 	if !stat.OK() {
 		t.Error(stat)
@@ -62,11 +62,11 @@ func TestIngoreCase(t *testing.T) {
 }
 
 type Push struct {
-	erpc.PushCtx
+	yrpc.PushCtx
 }
 
-func (p *Push) Test(arg *map[string]string) *erpc.Status {
-	erpc.Infof("receive push(%s):\narg: %#v\n", p.IP(), arg)
+func (p *Push) Test(arg *map[string]string) *yrpc.Status {
+	yrpc.Infof("receive push(%s):\narg: %#v\n", p.IP(), arg)
 	return nil
 }
 ```

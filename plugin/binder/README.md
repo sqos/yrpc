@@ -4,7 +4,7 @@ Parameter Binding Verification Plugin for Struct Handler.
 
 ### Usage
 
-`import "github.com/andeya/erpc/v7/plugin/binder"`
+`import "github.com/sqos/yrpc/plugin/binder"`
 
 #### Param-Tags
 
@@ -57,8 +57,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/erpc/v7/plugin/binder"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/yrpc/plugin/binder"
 )
 
 type (
@@ -75,10 +75,10 @@ type (
 	}
 )
 
-type P struct{ erpc.CallCtx }
+type P struct{ yrpc.CallCtx }
 
-func (p *P) Divide(arg *Arg) (int, *erpc.Status) {
-	erpc.Infof("meta arg _x: %s, xy_z: %s, swap_value: %v", arg.Query.X, arg.XyZ, arg.SwapValue)
+func (p *P) Divide(arg *Arg) (int, *yrpc.Status) {
+	yrpc.Infof("meta arg _x: %s, xy_z: %s, swap_value: %v", arg.Query.X, arg.XyZ, arg.SwapValue)
 	return arg.A / arg.B, nil
 }
 
@@ -87,22 +87,22 @@ type SwapPlugin struct{}
 func (s *SwapPlugin) Name() string {
 	return "swap_plugin"
 }
-func (s *SwapPlugin) PostReadCallBody(ctx erpc.ReadCtx) *erpc.Status {
+func (s *SwapPlugin) PostReadCallBody(ctx yrpc.ReadCtx) *yrpc.Status {
 	ctx.Swap().Store("swap_value", 123)
 	return nil
 }
 
 func TestBinder(t *testing.T) {
 	bplugin := binder.NewStructArgsBinder(nil)
-	srv := erpc.NewPeer(
-		erpc.PeerConfig{ListenPort: 9090},
+	srv := yrpc.NewPeer(
+		yrpc.PeerConfig{ListenPort: 9090},
 	)
 	srv.PluginContainer().AppendRight(bplugin)
 	srv.RouteCall(new(P), new(SwapPlugin))
 	go srv.ListenAndServe()
 	time.Sleep(time.Second)
 
-	cli := erpc.NewPeer(erpc.PeerConfig{})
+	cli := yrpc.NewPeer(yrpc.PeerConfig{})
 	sess, stat := cli.Dial(":9090")
 	if !stat.OK() {
 		t.Fatal(stat)
@@ -114,8 +114,8 @@ func TestBinder(t *testing.T) {
 		C: "3",
 	},
 		&result,
-		erpc.WithSetMeta("_x", "testmeta_x"),
-		erpc.WithSetMeta("xy_z", "testmeta_xy_z"),
+		yrpc.WithSetMeta("_x", "testmeta_x"),
+		yrpc.WithSetMeta("xy_z", "testmeta_xy_z"),
 	).Status()
 	if !stat.OK() {
 		t.Fatal(stat)

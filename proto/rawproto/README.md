@@ -27,7 +27,7 @@ raw protocol format(Big Endian):
 
 ### Usage
 
-`import "github.com/andeya/erpc/v7/proto/pbproto"`
+`import "github.com/sqos/yrpc/proto/pbproto"`
 
 #### Test
 
@@ -38,21 +38,21 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/erpc/v7/xfer/gzip"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/yrpc/xfer/gzip"
 )
 
 func TestRawProto(t *testing.T) {
 	gzip.Reg('g', "gizp-5", 5)
 
 	// server
-	srv := erpc.NewPeer(erpc.PeerConfig{ListenPort: 9090})
+	srv := yrpc.NewPeer(yrpc.PeerConfig{ListenPort: 9090})
 	srv.RouteCall(new(Home))
 	go srv.ListenAndServe()
 	time.Sleep(1e9)
 
 	// client
-	cli := erpc.NewPeer(erpc.PeerConfig{})
+	cli := yrpc.NewPeer(yrpc.PeerConfig{})
 	cli.RoutePush(new(Push))
 	sess, stat := cli.Dial(":9090")
 	if !stat.OK() {
@@ -64,8 +64,8 @@ func TestRawProto(t *testing.T) {
 			"author": "andeya",
 		},
 		&result,
-		erpc.WithAddMeta("peer_id", "110"),
-		erpc.WithXferPipe('g'),
+		yrpc.WithAddMeta("peer_id", "110"),
+		yrpc.WithXferPipe('g'),
 	).Status()
 	if !stat.OK() {
 		t.Error(stat)
@@ -75,10 +75,10 @@ func TestRawProto(t *testing.T) {
 }
 
 type Home struct {
-	erpc.CallCtx
+	yrpc.CallCtx
 }
 
-func (h *Home) Test(arg *map[string]string) (map[string]interface{}, *erpc.Status) {
+func (h *Home) Test(arg *map[string]string) (map[string]interface{}, *yrpc.Status) {
 	h.Session().Push("/push/test", map[string]string{
 		"your_id": string(h.PeekMeta("peer_id")),
 	})
@@ -88,11 +88,11 @@ func (h *Home) Test(arg *map[string]string) (map[string]interface{}, *erpc.Statu
 }
 
 type Push struct {
-	erpc.PushCtx
+	yrpc.PushCtx
 }
 
-func (p *Push) Test(arg *map[string]string) *erpc.Status {
-	erpc.Infof("receive push(%s):\narg: %#v\n", p.IP(), arg)
+func (p *Push) Test(arg *map[string]string) *yrpc.Status {
+	yrpc.Infof("receive push(%s):\narg: %#v\n", p.IP(), arg)
 	return nil
 }
 ```

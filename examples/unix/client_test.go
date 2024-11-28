@@ -5,8 +5,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/goutil"
 )
 
 //go:generate go test -v -c -o "${GOPACKAGE}_client" $GOFILE
@@ -16,20 +16,20 @@ func TestClient(t *testing.T) {
 		t.Log("skip test in go test")
 		return
 	}
-	defer erpc.SetLoggerLevel("ERROR")()
+	defer yrpc.SetLoggerLevel("ERROR")()
 
-	cli := erpc.NewPeer(
-		erpc.PeerConfig{
+	cli := yrpc.NewPeer(
+		yrpc.PeerConfig{
 			Network:   "unix",
 			LocalPort: 9091,
 		},
-		&erpc.PluginImpl{
+		&yrpc.PluginImpl{
 			PluginName: "clean-local-unix-file",
-			OnPreDial: func(localAddr net.Addr, remoteAddr string) (stat *erpc.Status) {
+			OnPreDial: func(localAddr net.Addr, remoteAddr string) (stat *yrpc.Status) {
 				addr := localAddr.String()
 				if _, err := os.Stat(addr); err == nil {
 					if err := os.RemoveAll(addr); err != nil {
-						return erpc.NewStatusByCodeText(erpc.CodeDialFailed, err, false)
+						return yrpc.NewStatusByCodeText(yrpc.CodeDialFailed, err, false)
 					}
 				}
 				return nil
@@ -40,7 +40,7 @@ func TestClient(t *testing.T) {
 
 	sess, stat := cli.Dial("./0.0.0.0:9090")
 	if !stat.OK() {
-		erpc.Fatalf("%v", stat)
+		yrpc.Fatalf("%v", stat)
 	}
 
 	var result string
@@ -51,7 +51,7 @@ func TestClient(t *testing.T) {
 	).Status()
 
 	if !stat.OK() {
-		erpc.Fatalf("%v", stat)
+		yrpc.Fatalf("%v", stat)
 	}
-	erpc.Printf("result: %s", result)
+	yrpc.Printf("result: %s", result)
 }

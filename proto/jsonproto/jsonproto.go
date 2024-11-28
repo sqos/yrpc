@@ -2,7 +2,8 @@
 //
 //	Message data format: {length bytes}{xfer_pipe length byte}{xfer_pipe bytes}{JSON bytes}
 //
-// Copyright 2018 HenryLee. All Rights Reserved.
+// Copyright 2018-2023 HenryLee. All Rights Reserved.
+// Copyright 2024 sqos. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,19 +25,19 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/andeya/erpc/v7"
+	"github.com/sqos/yrpc"
 	"github.com/tidwall/gjson"
 
-	"github.com/andeya/erpc/v7/utils"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc/utils"
+	"github.com/sqos/goutil"
 )
 
 // NewJSONProtoFunc is creation function of JSON socket protocol.
 //
 //	Message data format: {length bytes}{xfer_pipe length byte}{xfer_pipe bytes}{JSON bytes}
 //	Message data demo: `830{"seq":%q,"mtype":%d,"serviceMethod":%q,"meta":%q,"bodyCodec":%d,"body":"%s"}`
-func NewJSONProtoFunc() erpc.ProtoFunc {
-	return func(rw erpc.IOWithReadBuffer) erpc.Proto {
+func NewJSONProtoFunc() yrpc.ProtoFunc {
+	return func(rw yrpc.IOWithReadBuffer) yrpc.Proto {
 		return &jsonproto{
 			id:   'j',
 			name: "json",
@@ -46,7 +47,7 @@ func NewJSONProtoFunc() erpc.ProtoFunc {
 }
 
 type jsonproto struct {
-	rw   erpc.IOWithReadBuffer
+	rw   yrpc.IOWithReadBuffer
 	rMu  sync.Mutex
 	name string
 	id   byte
@@ -72,7 +73,7 @@ var (
 
 // Pack writes the Message into the connection.
 // NOTE: Make sure to write only once or there will be package contamination!
-func (j *jsonproto) Pack(m erpc.Message) error {
+func (j *jsonproto) Pack(m yrpc.Message) error {
 	// marshal body
 	bodyBytes, err := m.MarshalBody()
 	if err != nil {
@@ -119,7 +120,7 @@ func (j *jsonproto) Pack(m erpc.Message) error {
 }
 
 // Unpack reads bytes from the connection to the Message.
-func (j *jsonproto) Unpack(m erpc.Message) error {
+func (j *jsonproto) Unpack(m yrpc.Message) error {
 	j.rMu.Lock()
 	defer j.rMu.Unlock()
 	var size uint32

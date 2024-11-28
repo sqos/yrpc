@@ -5,14 +5,14 @@ import (
 	"io/ioutil"
 	"sync"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/erpc/v7/codec"
-	"github.com/andeya/erpc/v7/mixer/websocket/pbSubProto/pb"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/yrpc/codec"
+	"github.com/sqos/yrpc/mixer/websocket/pbSubProto/pb"
 )
 
 // NewPbSubProtoFunc() is creation function of PROTOBUF socket protocol.
-func NewPbSubProtoFunc() erpc.ProtoFunc {
-	return func(rw erpc.IOWithReadBuffer) erpc.Proto {
+func NewPbSubProtoFunc() yrpc.ProtoFunc {
+	return func(rw yrpc.IOWithReadBuffer) yrpc.Proto {
 		return &pbSubProto{
 			id:   'p',
 			name: "protobuf",
@@ -24,7 +24,7 @@ func NewPbSubProtoFunc() erpc.ProtoFunc {
 type pbSubProto struct {
 	id   byte
 	name string
-	rw   erpc.IOWithReadBuffer
+	rw   yrpc.IOWithReadBuffer
 	rMu  sync.Mutex
 }
 
@@ -35,7 +35,7 @@ func (psp *pbSubProto) Version() (byte, string) {
 
 // Pack writes the Message into the connection.
 // NOTE: Make sure to write only once or there will be package contamination!
-func (psp *pbSubProto) Pack(m erpc.Message) error {
+func (psp *pbSubProto) Pack(m yrpc.Message) error {
 	// marshal body
 	bodyBytes, err := m.MarshalBody()
 	if err != nil {
@@ -68,7 +68,7 @@ func (psp *pbSubProto) Pack(m erpc.Message) error {
 
 // Unpack reads bytes from the connection to the Message.
 // NOTE: Concurrent unsafe!
-func (psp *pbSubProto) Unpack(m erpc.Message) error {
+func (psp *pbSubProto) Unpack(m yrpc.Message) error {
 	psp.rMu.Lock()
 	defer psp.rMu.Unlock()
 	b, err := ioutil.ReadAll(psp.rw)

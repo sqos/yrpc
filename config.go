@@ -1,4 +1,5 @@
-// Copyright 2015-2019 HenryLee. All Rights Reserved.
+// Copyright 2015-2023 HenryLee. All Rights Reserved.
+// Copyright 2024 sqos. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package erpc
+package yrpc
 
 import (
 	"errors"
@@ -21,16 +22,16 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/andeya/cfgo"
-	"github.com/andeya/erpc/v7/codec"
-	"github.com/andeya/erpc/v7/socket"
+	"github.com/sqos/cfgo"
+	"github.com/sqos/yrpc/codec"
+	"github.com/sqos/yrpc/socket"
 )
 
 // PeerConfig peer config
 // NOTE:
 //
-//	yaml tag is used for github.com/andeya/cfgo
-//	ini tag is used for github.com/andeya/ini
+//	yaml tag is used for github.com/sqos/cfgo
+//	ini tag is used for github.com/sqos/ini
 type PeerConfig struct {
 	Network           string        `yaml:"network"              ini:"network"              comment:"Network; tcp, tcp4, tcp6, unix, unixpacket, kcp or quic"`
 	LocalIP           string        `yaml:"local_ip"             ini:"local_ip"             comment:"Local IP"`
@@ -172,12 +173,12 @@ func SetDefaultBodyCodec(codecID byte) error {
 
 // DefaultProtoFunc gets the default builder of socket communication protocol
 //
-//	func DefaultProtoFunc() erpc.ProtoFunc
+//	func DefaultProtoFunc() yrpc.ProtoFunc
 var DefaultProtoFunc = socket.DefaultProtoFunc
 
 // SetDefaultProtoFunc sets the default builder of socket communication protocol
 //
-//	func SetDefaultProtoFunc(protoFunc erpc.ProtoFunc)
+//	func SetDefaultProtoFunc(protoFunc yrpc.ProtoFunc)
 var SetDefaultProtoFunc = socket.SetDefaultProtoFunc
 
 // GetReadLimit gets the message size upper limit of reading.

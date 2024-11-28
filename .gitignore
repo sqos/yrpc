@@ -58,6 +58,6 @@ examples/ab/frame_client_ab
 /plugin/ignorecase/ignorecase_test
 /plugin/overloader/overloader
 /plugin/secure/secure_test
-/erpc_test
+/yrpc_test
 /cover.out
 /cover.html

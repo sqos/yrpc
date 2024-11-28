@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/erpc/v7/examples/bench/msg"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/yrpc/examples/bench/msg"
+	"github.com/sqos/goutil"
 )
 
 //go:generate go test -v -c -o "${GOPACKAGE}_server" $GOFILE
@@ -32,15 +32,15 @@ func TestServer(t *testing.T) {
 	delay = flag.Duration("delay", 0, "delay to mock business processing")
 	flag.Parse()
 
-	defer erpc.SetLoggerLevel("ERROR")()
-	erpc.SetGopool(1024*1024*100, time.Minute*10)
+	defer yrpc.SetLoggerLevel("ERROR")()
+	yrpc.SetGopool(1024*1024*100, time.Minute*10)
 
 	go func() {
 		log.Println(http.ListenAndServe(*debugAddr, nil))
 	}()
 
-	erpc.SetServiceMethodMapper(erpc.RPCServiceMethodMapper)
-	server := erpc.NewPeer(erpc.PeerConfig{
+	yrpc.SetServiceMethodMapper(yrpc.RPCServiceMethodMapper)
+	server := yrpc.NewPeer(yrpc.PeerConfig{
 		Network:          *network,
 		DefaultBodyCodec: "protobuf",
 		ListenPort:       uint16(*port),
@@ -50,10 +50,10 @@ func TestServer(t *testing.T) {
 }
 
 type Hello struct {
-	erpc.CallCtx
+	yrpc.CallCtx
 }
 
-func (t *Hello) Say(args *msg.BenchmarkMessage) (*msg.BenchmarkMessage, *erpc.Status) {
+func (t *Hello) Say(args *msg.BenchmarkMessage) (*msg.BenchmarkMessage, *yrpc.Status) {
 	s := "OK"
 	var i int32 = 100
 	args.Field1 = s

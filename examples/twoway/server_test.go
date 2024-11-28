@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/goutil"
 )
 
 //go:generate go test -v -c -o "${GOPACKAGE}_server" $GOFILE
@@ -16,17 +16,17 @@ func TestServer(t *testing.T) {
 		t.Log("skip test in go test")
 		return
 	}
-	defer erpc.FlushLogger()
+	defer yrpc.FlushLogger()
 	// graceful
-	go erpc.GraceSignal()
+	go yrpc.GraceSignal()
 
 	// server peer
-	srv := erpc.NewPeer(erpc.PeerConfig{
+	srv := yrpc.NewPeer(yrpc.PeerConfig{
 		CountTime:   true,
 		ListenPort:  9090,
 		PrintDetail: true,
 	})
-	srv.SetTLSConfig(erpc.GenerateTLSConfigForServer())
+	srv.SetTLSConfig(yrpc.GenerateTLSConfigForServer())
 
 	// router
 	srv.RouteCall(new(Math))
@@ -37,7 +37,7 @@ func TestServer(t *testing.T) {
 	go func() {
 		for {
 			time.Sleep(time.Second * 5)
-			srv.RangeSession(func(sess erpc.Session) bool {
+			srv.RangeSession(func(sess yrpc.Session) bool {
 				sess.Push(
 					"/push/status",
 					fmt.Sprintf("this is a broadcast, server time: %v", time.Now()),
@@ -53,13 +53,13 @@ func TestServer(t *testing.T) {
 
 // Math handler
 type Math struct {
-	erpc.CallCtx
+	yrpc.CallCtx
 }
 
 // Add handles addition request
-func (m *Math) Add(arg *[]int) (int, *erpc.Status) {
+func (m *Math) Add(arg *[]int) (int, *yrpc.Status) {
 	// test meta
-	erpc.Infof("author: %s", m.PeekMeta("author"))
+	yrpc.Infof("author: %s", m.PeekMeta("author"))
 	// add
 	var r int
 	for _, a := range *arg {
@@ -70,10 +70,10 @@ func (m *Math) Add(arg *[]int) (int, *erpc.Status) {
 }
 
 type math_v2 struct {
-	erpc.CallCtx
+	yrpc.CallCtx
 }
 
-func (m *math_v2) Add__2(arg *[]int) (int, *erpc.Status) {
+func (m *math_v2) Add__2(arg *[]int) (int, *yrpc.Status) {
 	if string(m.PeekMeta("push_status")) == "yes" {
 		m.Session().Push(
 			"/cli/push/server_status",

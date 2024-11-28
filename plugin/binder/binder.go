@@ -1,6 +1,7 @@
 // Package binder is Parameter Binding Verification Plugin for Struct Handler.
 //
-// Copyright 2018 HenryLee. All Rights Reserved.
+// Copyright 2018-2023 HenryLee. All Rights Reserved.
+// Copyright 2024 sqos. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,9 +25,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/erpc/v7/utils"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/yrpc/utils"
+	"github.com/sqos/goutil"
 )
 
 /*
@@ -79,12 +80,12 @@ type (
 		errFunc ErrorFunc
 	}
 	// ErrorFunc creates an relational error.
-	ErrorFunc func(handlerName, paramName, reason string) *erpc.Status
+	ErrorFunc func(handlerName, paramName, reason string) *yrpc.Status
 )
 
 var (
-	_ erpc.PostRegPlugin          = new(StructArgsBinder)
-	_ erpc.PostReadCallBodyPlugin = new(StructArgsBinder)
+	_ yrpc.PostRegPlugin          = new(StructArgsBinder)
+	_ yrpc.PostReadCallBodyPlugin = new(StructArgsBinder)
 )
 
 // NewStructArgsBinder creates a plugin that binds and validates structure type parameters.
@@ -98,8 +99,8 @@ func NewStructArgsBinder(fn ErrorFunc) *StructArgsBinder {
 }
 
 var (
-	_ erpc.PostRegPlugin          = new(StructArgsBinder)
-	_ erpc.PostReadCallBodyPlugin = new(StructArgsBinder)
+	_ yrpc.PostRegPlugin          = new(StructArgsBinder)
+	_ yrpc.PostReadCallBodyPlugin = new(StructArgsBinder)
 )
 
 // SetErrorFunc sets the binding or balidating error function.
@@ -109,9 +110,9 @@ func (s *StructArgsBinder) SetErrorFunc(fn ErrorFunc) {
 		s.errFunc = fn
 		return
 	}
-	s.errFunc = func(handlerName, paramName, reason string) *erpc.Status {
-		return erpc.NewStatus(
-			erpc.CodeBadMessage,
+	s.errFunc = func(handlerName, paramName, reason string) *yrpc.Status {
+		return yrpc.NewStatus(
+			yrpc.CodeBadMessage,
 			"Invalid Parameter",
 			fmt.Sprintf(`{"handler": %q, "param": %q, "reason": %q}`, handlerName, paramName, reason),
 		)
@@ -124,21 +125,21 @@ func (*StructArgsBinder) Name() string {
 }
 
 // PostReg preprocessing struct handler.
-func (s *StructArgsBinder) PostReg(h *erpc.Handler) error {
+func (s *StructArgsBinder) PostReg(h *yrpc.Handler) error {
 	if h.ArgElemType().Kind() != reflect.Struct {
 		return nil
 	}
 	params := newParams(h.Name(), s)
 	err := params.addFields([]int{}, h.ArgElemType(), h.NewArgValue().Elem())
 	if err != nil {
-		erpc.Fatalf("%v", err)
+		yrpc.Fatalf("%v", err)
 	}
 	s.binders[h.Name()] = params
 	return nil
 }
 
 // PostReadCallBody binds and validates the registered struct handler.
-func (s *StructArgsBinder) PostReadCallBody(ctx erpc.ReadCtx) *erpc.Status {
+func (s *StructArgsBinder) PostReadCallBody(ctx yrpc.ReadCtx) *yrpc.Status {
 	params, ok := s.binders[ctx.ServiceMethod()]
 	if !ok {
 		return nil
@@ -304,7 +305,7 @@ func (p *Params) fieldsForBinding(structElem reflect.Value) []reflect.Value {
 	return fields
 }
 
-func (p *Params) bindAndValidate(structValue reflect.Value, meta *utils.Args, swap goutil.Map) (stat *erpc.Status) {
+func (p *Params) bindAndValidate(structValue reflect.Value, meta *utils.Args, swap goutil.Map) (stat *yrpc.Status) {
 	defer func() {
 		if r := recover(); r != nil {
 			stat = p.binder.errFunc(p.handlerName, "", fmt.Sprint(r))
@@ -482,7 +483,7 @@ func (param *Param) Description() string {
 
 // validate tests if the param conforms to it's validation constraints specified
 // int the KEY_REGEXP struct tag
-func (param *Param) validate(value reflect.Value) (stat *erpc.Status) {
+func (param *Param) validate(value reflect.Value) (stat *yrpc.Status) {
 	defer func() {
 		if r := recover(); r != nil {
 			stat = param.fixStatus(param.binder.errFunc(param.handlerName, param.name, fmt.Sprint(r)))
@@ -668,7 +669,7 @@ func validateRegexp(isStrings bool, reg string) (func(value reflect.Value) error
 	}
 }
 
-func (param *Param) fixStatus(stat *erpc.Status) *erpc.Status {
+func (param *Param) fixStatus(stat *yrpc.Status) *yrpc.Status {
 	if param.statMsg != "" {
 		stat.SetMsg(param.statMsg)
 	}

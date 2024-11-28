@@ -8,14 +8,14 @@ import (
 	"io/ioutil"
 	"sync"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/goutil"
 	"github.com/tidwall/gjson"
 )
 
 // NewJSONSubProtoFunc is creation function of JSON socket protocol.
-func NewJSONSubProtoFunc() erpc.ProtoFunc {
-	return func(rw erpc.IOWithReadBuffer) erpc.Proto {
+func NewJSONSubProtoFunc() yrpc.ProtoFunc {
+	return func(rw yrpc.IOWithReadBuffer) yrpc.Proto {
 		return &jsonSubProto{
 			id:   'j',
 			name: "json",
@@ -27,7 +27,7 @@ func NewJSONSubProtoFunc() erpc.ProtoFunc {
 type jsonSubProto struct {
 	id   byte
 	name string
-	rw   erpc.IOWithReadBuffer
+	rw   yrpc.IOWithReadBuffer
 	rMu  sync.Mutex
 }
 
@@ -40,7 +40,7 @@ const format = `{"seq":%d,"mtype":%d,"serviceMethod":%q,"meta":%q,"bodyCodec":%d
 
 // Pack writes the Message into the connection.
 // NOTE: Make sure to write only once or there will be package contamination!
-func (j *jsonSubProto) Pack(m erpc.Message) error {
+func (j *jsonSubProto) Pack(m yrpc.Message) error {
 	// marshal body
 	bodyBytes, err := m.MarshalBody()
 	if err != nil {
@@ -82,7 +82,7 @@ func (j *jsonSubProto) Pack(m erpc.Message) error {
 
 // Unpack reads bytes from the connection to the Message.
 // NOTE: Concurrent unsafe!
-func (j *jsonSubProto) Unpack(m erpc.Message) error {
+func (j *jsonSubProto) Unpack(m yrpc.Message) error {
 	j.rMu.Lock()
 	defer j.rMu.Unlock()
 	b, err := ioutil.ReadAll(j.rw)

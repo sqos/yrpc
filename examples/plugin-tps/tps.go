@@ -6,7 +6,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/andeya/erpc/v7"
+	"github.com/sqos/yrpc"
 )
 
 //go:generate go build $GOFILE
@@ -28,9 +28,9 @@ type TPS struct {
 }
 
 var (
-	_ erpc.PostRegPlugin          = (*TPS)(nil)
-	_ erpc.PostWriteReplyPlugin   = (*TPS)(nil)
-	_ erpc.PostReadPushBodyPlugin = (*TPS)(nil)
+	_ yrpc.PostRegPlugin          = (*TPS)(nil)
+	_ yrpc.PostWriteReplyPlugin   = (*TPS)(nil)
+	_ yrpc.PostReadPushBodyPlugin = (*TPS)(nil)
 )
 
 func (t *TPS) start() {
@@ -50,18 +50,18 @@ func (t *TPS) Name() string {
 	return "TPS"
 }
 
-func (t *TPS) PostReg(h *erpc.Handler) error {
+func (t *TPS) PostReg(h *yrpc.Handler) error {
 	t.stat[h.Name()] = new(uint32)
 	return nil
 }
 
-func (t *TPS) PostWriteReply(ctx erpc.WriteCtx) *erpc.Status {
+func (t *TPS) PostWriteReply(ctx yrpc.WriteCtx) *yrpc.Status {
 	t.once.Do(t.start)
 	atomic.AddUint32(t.stat[ctx.Output().ServiceMethod()], 1)
 	return nil
 }
 
-func (t *TPS) PostReadPushBody(ctx erpc.ReadCtx) *erpc.Status {
+func (t *TPS) PostReadPushBody(ctx yrpc.ReadCtx) *yrpc.Status {
 	t.once.Do(t.start)
 	atomic.AddUint32(t.stat[ctx.ServiceMethod()], 1)
 	return nil

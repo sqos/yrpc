@@ -1,4 +1,5 @@
-// Copyright 2018 HenryLee. All Rights Reserved.
+// Copyright 2018-2023 HenryLee. All Rights Reserved.
+// Copyright 2024 sqos. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,8 +19,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/andeya/goutil"
-	"github.com/andeya/goutil/coarsetime"
+	"github.com/sqos/goutil"
+	"github.com/sqos/goutil/coarsetime"
 )
 
 type swapKey byte

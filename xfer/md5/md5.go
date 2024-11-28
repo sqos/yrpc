@@ -6,7 +6,7 @@ import (
 	"crypto/md5"
 	"errors"
 
-	"github.com/andeya/erpc/v7/xfer"
+	"github.com/sqos/yrpc/xfer"
 )
 
 // Reg registers a md5 checker filter for transfer.

@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/goutil"
 )
 
 //go:generate go test -v -c -o "${GOPACKAGE}_client" $GOFILE
@@ -17,12 +17,12 @@ func TestClient(t *testing.T) {
 		return
 	}
 
-	defer erpc.SetLoggerLevel("INFO")()
-	cli := erpc.NewPeer(erpc.PeerConfig{})
+	defer yrpc.SetLoggerLevel("INFO")()
+	cli := yrpc.NewPeer(yrpc.PeerConfig{})
 	defer cli.Close()
 	sess, stat := cli.Dial(":9090")
 	if !stat.OK() {
-		erpc.Fatalf("%v", stat)
+		yrpc.Fatalf("%v", stat)
 	}
 
 	// Single asynchronous call
@@ -31,23 +31,23 @@ func TestClient(t *testing.T) {
 		"/test/wait3s",
 		"Single asynchronous call",
 		&result,
-		make(chan erpc.CallCmd, 1),
+		make(chan yrpc.CallCmd, 1),
 	)
 WAIT:
 	for {
 		select {
 		case <-callCmd.Done():
-			erpc.Infof("test 1: result: %#v, error: %v", result, callCmd.Status())
+			yrpc.Infof("test 1: result: %#v, error: %v", result, callCmd.Status())
 			break WAIT
 		default:
-			erpc.Warnf("test 1: Not yet returned to the result, try again later...")
+			yrpc.Warnf("test 1: Not yet returned to the result, try again later...")
 			time.Sleep(time.Second)
 		}
 	}
 
 	// Batch asynchronous call
 	batch := 10
-	callCmdChan := make(chan erpc.CallCmd, batch)
+	callCmdChan := make(chan yrpc.CallCmd, batch)
 	for i := 0; i < batch; i++ {
 		sess.AsyncCall(
 			"/test/wait3s",
@@ -59,9 +59,9 @@ WAIT:
 	for callCmd := range callCmdChan {
 		result, stat := callCmd.Reply()
 		if !stat.OK() {
-			erpc.Errorf("test 2: error: %v", stat)
+			yrpc.Errorf("test 2: error: %v", stat)
 		} else {
-			erpc.Infof("test 2: result: %v", *result.(*string))
+			yrpc.Infof("test 2: result: %v", *result.(*string))
 		}
 		batch--
 		if batch == 0 {

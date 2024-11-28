@@ -1,4 +1,5 @@
-// Copyright 2017 HenryLee. All Rights Reserved.
+// Copyright 2017-2023 HenryLee. All Rights Reserved.
+// Copyright 2024 sqos. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,8 +22,8 @@ import (
 	"io/ioutil"
 	"sync"
 
-	"github.com/andeya/erpc/v7/utils"
-	"github.com/andeya/erpc/v7/xfer"
+	"github.com/sqos/yrpc/utils"
+	"github.com/sqos/yrpc/xfer"
 )
 
 var ids = map[byte]bool{}

@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/goutil"
 )
 
 //go:generate go test -v -c -o "${GOPACKAGE}_server" $GOFILE
@@ -17,8 +17,8 @@ func TestServer(t *testing.T) {
 		return
 	}
 
-	defer erpc.FlushLogger()
-	srv := erpc.NewPeer(erpc.PeerConfig{
+	defer yrpc.FlushLogger()
+	srv := yrpc.NewPeer(yrpc.PeerConfig{
 		PrintDetail:       true,
 		CountTime:         true,
 		ListenPort:        9090,
@@ -30,21 +30,21 @@ func TestServer(t *testing.T) {
 }
 
 type test struct {
-	erpc.CallCtx
+	yrpc.CallCtx
 }
 
-func (t *test) Ok(arg *string) (string, *erpc.Status) {
+func (t *test) Ok(arg *string) (string, *yrpc.Status) {
 	return *arg + " -> OK", nil
 }
 
-func (t *test) Timeout(arg *string) (string, *erpc.Status) {
+func (t *test) Timeout(arg *string) (string, *yrpc.Status) {
 	tCtx, _ := context.WithTimeout(t.Context(), time.Second)
 	time.Sleep(time.Second)
 	select {
 	case <-tCtx.Done():
-		return "", erpc.NewStatus(
-			erpc.CodeHandleTimeout,
-			erpc.CodeText(erpc.CodeHandleTimeout),
+		return "", yrpc.NewStatus(
+			yrpc.CodeHandleTimeout,
+			yrpc.CodeText(yrpc.CodeHandleTimeout),
 			tCtx.Err().Error(),
 		)
 	default:
@@ -52,12 +52,12 @@ func (t *test) Timeout(arg *string) (string, *erpc.Status) {
 	}
 }
 
-func (t *test) Break(*struct{}) (*struct{}, *erpc.Status) {
+func (t *test) Break(*struct{}) (*struct{}, *yrpc.Status) {
 	time.Sleep(time.Second * 3)
 	select {
 	case <-t.Session().CloseNotify():
-		erpc.Infof("the connection has gone away!")
-		return nil, erpc.NewStatus(erpc.CodeConnClosed, "", "")
+		yrpc.Infof("the connection has gone away!")
+		return nil, yrpc.NewStatus(yrpc.CodeConnClosed, "", "")
 	default:
 		return nil, nil
 	}

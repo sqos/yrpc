@@ -4,23 +4,23 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andeya/erpc/v7"
-	"github.com/andeya/goutil"
+	"github.com/sqos/yrpc"
+	"github.com/sqos/goutil"
 )
 
 type Call struct {
-	erpc.CallCtx
+	yrpc.CallCtx
 }
 
-func (*Call) Test(*struct{}) (*struct{}, *erpc.Status) {
+func (*Call) Test(*struct{}) (*struct{}, *yrpc.Status) {
 	return nil, nil
 }
 
 type Push struct {
-	erpc.PushCtx
+	yrpc.PushCtx
 }
 
-func (*Push) Test(*struct{}) *erpc.Status {
+func (*Push) Test(*struct{}) *yrpc.Status {
 	return nil
 }
 
@@ -31,16 +31,16 @@ func TestTPS(t *testing.T) {
 		t.Log("skip test in go test")
 		return
 	}
-	erpc.SetLoggerLevel("OFF")
+	yrpc.SetLoggerLevel("OFF")
 	// Server
-	srv := erpc.NewPeer(erpc.PeerConfig{ListenPort: 9090}, NewTPS(5))
+	srv := yrpc.NewPeer(yrpc.PeerConfig{ListenPort: 9090}, NewTPS(5))
 	srv.RouteCall(new(Call))
 	srv.RoutePush(new(Push))
 	go srv.ListenAndServe()
 	time.Sleep(1e9)
 
 	// Client
-	cli := erpc.NewPeer(erpc.PeerConfig{})
+	cli := yrpc.NewPeer(yrpc.PeerConfig{})
 	sess, stat := cli.Dial(":9090")
 	if !stat.OK() {
 		t.Fatal(stat)
