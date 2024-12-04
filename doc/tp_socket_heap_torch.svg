@@ -372,11 +372,11 @@
 <text text-anchor="" x="66.32" y="127.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >github.com/sqos/yrpc/codec.(*ProtoCodec).Unmarshal</text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>github.com/sqos/yrpc/vendor/github.com/gogo/protobuf/proto.UnmarshalMerge (5,423,330 samples, 67.99%)</title><rect x="63.3" y="53" width="802.3" height="15.0" fill="rgb(233,117,2)" rx="2" ry="2" />
-<text text-anchor="" x="66.32" y="63.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >github.com/sqos/yrpc/vendor/github.com/gogo/protobuf/proto.UnmarshalMerge</text>
+<title>github.com/sqos/yrpc/vendor/google.golang.org/protobuf/proto.UnmarshalMerge (5,423,330 samples, 67.99%)</title><rect x="63.3" y="53" width="802.3" height="15.0" fill="rgb(233,117,2)" rx="2" ry="2" />
+<text text-anchor="" x="66.32" y="63.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >github.com/sqos/yrpc/vendor/google.golang.org/protobuf/proto.UnmarshalMerge</text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>github.com/sqos/yrpc/vendor/github.com/gogo/protobuf/proto.Marshal (423,485 samples, 5.31%)</title><rect x="948.0" y="85" width="62.6" height="15.0" fill="rgb(210,41,45)" rx="2" ry="2" />
+<title>github.com/sqos/yrpc/vendor/google.golang.org/protobuf/proto.Marshal (423,485 samples, 5.31%)</title><rect x="948.0" y="85" width="62.6" height="15.0" fill="rgb(210,41,45)" rx="2" ry="2" />
 <text text-anchor="" x="950.97" y="95.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >github..</text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -428,8 +428,8 @@
 <text text-anchor="" x="868.57" y="175.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>github.com/sqos/yrpc/vendor/github.com/gogo/protobuf/proto.Unmarshal (5,423,330 samples, 67.99%)</title><rect x="63.3" y="69" width="802.3" height="15.0" fill="rgb(242,153,23)" rx="2" ry="2" />
-<text text-anchor="" x="66.32" y="79.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >github.com/sqos/yrpc/vendor/github.com/gogo/protobuf/proto.Unmarshal</text>
+<title>github.com/sqos/yrpc/vendor/google.golang.org/protobuf/proto.Unmarshal (5,423,330 samples, 67.99%)</title><rect x="63.3" y="69" width="802.3" height="15.0" fill="rgb(242,153,23)" rx="2" ry="2" />
+<text text-anchor="" x="66.32" y="79.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >github.com/sqos/yrpc/vendor/google.golang.org/protobuf/proto.Unmarshal</text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
 <title>encoding/binary.Write (163,842 samples, 2.05%)</title><rect x="923.7" y="165" width="24.3" height="15.0" fill="rgb(244,172,48)" rx="2" ry="2" />

@@ -9,11 +9,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/montanaflynn/stats"
+	"github.com/sqos/goutil"
 	"github.com/sqos/yrpc"
 	"github.com/sqos/yrpc/examples/bench/msg"
-	"github.com/sqos/goutil"
-	proto "github.com/gogo/protobuf/proto"
-	"github.com/montanaflynn/stats"
+	proto "google.golang.org/protobuf/proto"
 )
 
 //go:generate go test -v -c -o "${GOPACKAGE}_mclient" $GOFILE
@@ -92,7 +92,7 @@ func TestMClient(t *testing.T) {
 
 				d[i] = append(d[i], t)
 
-				if stat.OK() && reply.Field1 == "OK" {
+				if stat.OK() && *reply.Field1 == "OK" {
 					atomic.AddUint64(&transOK, 1)
 				}
 

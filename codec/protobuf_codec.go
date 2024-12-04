@@ -18,7 +18,7 @@ package codec
 import (
 	"fmt"
 
-	"github.com/gogo/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 )
 
 // protobuf codec name and id

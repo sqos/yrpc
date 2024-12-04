@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/sqos/goutil"
 	"github.com/sqos/yrpc"
 	"github.com/sqos/yrpc/examples/bench/msg"
-	"github.com/sqos/goutil"
 )
 
 //go:generate go test -v -c -o "${GOPACKAGE}_server" $GOFILE
@@ -56,8 +56,8 @@ type Hello struct {
 func (t *Hello) Say(args *msg.BenchmarkMessage) (*msg.BenchmarkMessage, *yrpc.Status) {
 	s := "OK"
 	var i int32 = 100
-	args.Field1 = s
-	args.Field2 = i
+	args.Field1 = &s
+	args.Field2 = &i
 	if *delay > 0 {
 		time.Sleep(*delay)
 	} else {
