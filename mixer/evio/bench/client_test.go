@@ -2,6 +2,7 @@ package evio_bench
 
 import (
 	"flag"
+	"google.golang.org/protobuf/proto"
 	"log"
 	"net/http"
 	_ "net/http/pprof"
@@ -10,10 +11,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/montanaflynn/stats"
+	"github.com/sqos/goutil"
 	"github.com/sqos/yrpc"
 	"github.com/sqos/yrpc/examples/bench/msg"
-	"github.com/sqos/goutil"
-	"github.com/montanaflynn/stats"
 )
 
 //go:generate go test -v -c -o "${GOPACKAGE}_client" $GOFILE
@@ -54,9 +55,8 @@ func TestClient(t *testing.T) {
 
 	args := msg.PrepareArgs()
 
-	b := make([]byte, 1024*1024)
-	i, _ := args.MarshalTo(b)
-	log.Printf("message size: %d bytes\n\n", i)
+	b, _ := proto.Marshal(args)
+	log.Printf("message size: %d bytes\n\n", len(b))
 
 	var wg sync.WaitGroup
 	wg.Add(n * m)
@@ -101,7 +101,7 @@ func TestClient(t *testing.T) {
 
 				d[i] = append(d[i], t)
 
-				if stat.OK() && reply.Field1 == "OK" {
+				if stat.OK() && *reply.Field1 == "OK" {
 					atomic.AddUint64(&transOK, 1)
 				}
 
