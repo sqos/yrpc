@@ -1,7 +1,7 @@
 # yRPC
 
 [![tag](https://img.shields.io/github/tag/sqos/yrpc.svg)](https://github.com/sqos/yrpc/releases)
-![Go Version](https://img.shields.io/badge/Go-%3E%3D%201.18-%23007d9c)
+![Go Version](https://img.shields.io/badge/Go-%3E%3D%201.23-%23007d9c)
 [![GoDoc](https://godoc.org/github.com/sqos/yrpc?status.svg)](https://pkg.go.dev/github.com/sqos/yrpc)
 ![Build Status](https://github.com/sqos/yrpc/actions/workflows/go-ci.yml/badge.svg)
 [![Go report](https://goreportcard.com/badge/github.com/sqos)](https://goreportcard.com/report/github.com/sqos/yrpc)
@@ -25,7 +25,7 @@ yRPC 是一个高效、可扩展且简单易用的 RPC 框架。
 
 ## 安装
 
-- go vesion ≥ 1.18
+- go vesion ≥ 1.23
 
 - install
 ```sh

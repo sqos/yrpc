@@ -1,7 +1,7 @@
 # yRPC
 
 [![tag](https://img.shields.io/github/tag/sqos/yrpc.svg)](https://github.com/sqos/yrpc/releases)
-![Go Version](https://img.shields.io/badge/Go-%3E%3D%201.18-%23007d9c)
+![Go Version](https://img.shields.io/badge/Go-%3E%3D%201.23-%23007d9c)
 [![GoDoc](https://godoc.org/github.com/sqos/yrpc?status.svg)](https://pkg.go.dev/github.com/sqos/yrpc)
 ![Build Status](https://github.com/sqos/yrpc/actions/workflows/go-ci.yml/badge.svg)
 [![Go report](https://goreportcard.com/badge/github.com/sqos/yrpc)](https://goreportcard.com/report/github.com/sqos/yrpc)
@@ -28,7 +28,7 @@ Suitable for RPC, Microservice, Peer-to-Peer, IM, Game and other fields.
 ## Install
 
 
-- go vesion ≥ 1.18
+- go vesion ≥ 1.23
 
 - install
 ```sh

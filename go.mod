@@ -1,6 +1,6 @@
 module github.com/sqos/yrpc
 
-go 1.23.3
+go 1.23
 
 require (
 	github.com/apache/thrift v0.21.0
